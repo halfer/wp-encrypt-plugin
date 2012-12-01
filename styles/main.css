@@ -1,0 +1,11 @@
+#encrypt-demo-search {
+	border: 1px dotted red;
+}
+
+#encrypt-demo-options p {
+	max-width: 1000px;
+}
+
+#encrypt-demo-options pre {
+	font-size: 0.8em;
+}

@@ -1,0 +1,88 @@
+<div id="encrypt-demo-options" class="wrap">
+	<h2>Encrypt options</h2>
+
+	<div class="metabox-holder">
+		<div class="meta-box-sortabless">
+			<div class="postbox">
+				<h3 class="hndle">Encryption keys</h3>
+				<div class="inside">
+					<?php if ($pubKey): ?>
+					<?php else: ?>
+						<?php if ($chooseImport): ?>
+							<p>Suitable warning!</p>
+							<textarea
+								rows="10"
+								cols="80">Public key goes here</textarea>
+						<?php elseif ($chooseGen): ?>
+							<p>The system has generated a set of keys for you, and the one you need to save
+							to your computer is printed here. This has <strong>not</strong> yet been installed. Once you have
+							confirmed below that you have taken a copy, you can click the Install button.</p>
+							<pre><?php echo $newPrivKey ?></pre>
+							<form method="post">
+								<p>
+									<label>
+										<input type="checkbox" name="save_confirm" value="1" />
+										I confirm I have taken a copy of this private key
+									</label>
+								</p>
+								<input type="submit" name="gen_keys_install" value="Install new keys" />
+							</form>
+						<?php else: ?>
+							<?php /* We have no public key stored, so we need offer options to create/import */ ?>
+							<p>This system requires text-based keys to operate, one of which is known as the "public key",
+								which is stored on the server, and the other of which is known as the "private key",
+								which you keep on your personal computer. The public key is used to encrypt comment data
+								(i.e. email and IP) and the private key is used to decrypt.</p>
+							
+							<p>If you're starting from scratch, generate new keys. However if you've an existing private
+								key and wish to import it, then you can do so here.</p>
+							<form method="get">
+								<input type="hidden" name="page" value="encdemo" />
+								<input type="submit" name="gen_keys" value="Generate new keys" />
+								<input type="submit" name="import_keys" value="Import keys" />
+							</form>
+						<?php endif ?>
+					<?php endif ?>
+					<!--
+					<p>The public key is used to encrypt user IP and email addresses. Make
+						<strong>absolutely</strong> sure you have a copy of the correct corresponding
+						private key, stored in a safe place, so you can decrypt this data on demand.</p>
+
+					<p>Do not store your private key on the server, or leave it in a mail account on
+						the same server, otherwise the encryption can be trivially defeated.</p>
+					-->
+				</div>
+			</div>
+
+			<div class="postbox">
+				<h3 class="hndle">Configuration</h3>
+				<div class="inside">
+					<p>(Off, test only, real run. Real mode also wipes unencrypted email/ip fields)</p>
+
+					<p>(CPU-saving settings here. Shared hosts won't like searches - very CPU intensive)</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="todo-list">
+		<p>Todo:</p>
+		<ol>
+			<li>Create pub/priv pair button, plus option to add priv key manually</li>
+			<ol>
+				<li>Can a pub key be regenerated from a priv key?</li>
+			</ol>
+			<li>Allow user to choose number of bits (<a href="http://php.net/manual/en/function.openssl-pkey-new.php"
+				>use configargs</a>)</li>
+			<li>Save public key in WP options</li>
+			<li>Set up private key in cookie</li>
+			<li>Confirm priv key is saved
+			<li>View private key button (JS)</li>
+			<li>Create repo on Github</li>
+			<li>Healthcheck: count number of pub keys used across all comments (if more than one, then report
+				it as a problem in UI)</li>
+			<li>Speed tests to see if phpsec lib is faster/slower than openssl extension</li>
+			<li>Capture logout event so we can clear all our custom cookies</li>
+		</ol>
+	</div>
+</div>
