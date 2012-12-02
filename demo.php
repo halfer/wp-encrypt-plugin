@@ -12,8 +12,14 @@ License: GPL2
 class EncryptDemo
 {
 	const OPTION_PUB_KEY = 'encdemo_pub_key';
+	const COOKIE_NEW_PRIV_KEY = 'wp-encrypt-plugin_new-priv-key';
+	const COOKIE_PRIV_KEY = 'wp-encrypt-plugin_priv-key';
 
+	// Stores the plugin folder path
 	protected $root;
+
+	// Used to pass template rendering values around this object
+	protected $templateVars = array();
 
 	public function __construct()
 	{
@@ -150,7 +156,16 @@ class EncryptDemo
 	public function screensHandler()
 	{
 		// Add settings menu item
-		add_options_page('Encrypt Demo Options', 'Encrypt Demo', 'manage_options', 'encdemo', array($this, 'optionsScreenHandler'));
+		$hookSuffix = add_options_page(
+			'Encrypt Demo Options',
+			'Encrypt Demo',
+			'manage_options',
+			'encdemo',
+			array($this, 'optionsScreenHandler')
+		);
+
+		// Add an actions handler for this page
+		add_action('load-' . $hookSuffix, array($this, 'optionsActionHandler'));
 
 		// Add submenu page
 		add_submenu_page(
@@ -176,15 +191,13 @@ class EncryptDemo
 		}
 	}
 
-	public function optionsScreenHandler()
+	/**
+	 * Actions handler called prior to options screen rendering
+	 * 
+	 * Needs to be early so we can set cookies if we wish
+	 */
+	public function optionsActionHandler()
 	{
-		if ( !current_user_can( 'manage_options' ) )  {
-			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-		}
-
-		// Ensure Open SSL is supported
-		$supportsSSL = extension_loaded('openssl');
-
 		// Read public key from WP
 		$pubKey = get_option(self::OPTION_PUB_KEY);
 
@@ -192,34 +205,52 @@ class EncryptDemo
 		$chooseImport = (bool) $this->getInput('import_keys');
 		$chooseGen = (bool) $this->getInput('gen_keys');
 
-		$params = array();
-
-		if ( $chooseGen ) {
-			$params = $this->generateNewKeys();
+		if ( $chooseGen )
+		{
+			$templateVars = $this->generateNewKeys();
+		}
+		else
+		{
+			$templateVars = array();			
 		}
 
 		// Set up default vars passed to template
-		$params = array_merge(
+		$this->templateVars = array_merge(
 			array(
 				'pubKey' => $pubKey,
 				'chooseImport' => $chooseImport,
 				'chooseGen' => $chooseGen,
 			),
-			$params
+			$templateVars
 		);
+	}
+
+	/**
+	 * Rendering handler called to render the options screen (actions have already run by this stage)
+	 */
+	public function optionsScreenHandler()
+	{
+		if (!current_user_can('manage_options'))
+		{
+			wp_die(__('You do not have sufficient permissions to access this page.'));
+		}
+
+		// Ensure Open SSL is supported
+		$supportsSSL = extension_loaded('openssl');
 
 		$this->renderTemplate(
 			$supportsSSL ? 'options' : 'options-nossl',
-			$params
+			$this->templateVars
 		);
 	}
 
 	public function searchScreenHandler()
 	{
-		if ( !current_user_can( 'moderate_comments' ) )  {
-			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+		if (!current_user_can('moderate_comments'))
+		{
+			wp_die(__('You do not have sufficient permissions to access this page.'));
 		}
-		
+
 		$this->renderTemplate('search');
 	}
 
@@ -234,36 +265,50 @@ class EncryptDemo
 		return isset($_REQUEST[$key]) ? $_REQUEST[$key] : null;
 	}
 
-	protected function generateNewKeys() {
-		$newPubKey = "
------BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDNQzi5g7SqgKuio2sUOUqIqzpC
-daaNoy1XT+pArm1Wy/WEcKYMplxA559ZZrm9dIAgiGc30GipYJ2azBTIplaeO8PC
-u0f0YXEL1MZP53FMDW8kfoBVrgPJJpADrTC6TDcZ9ICtVpJvBpGpkXDs01/jwVCe
-7uk2pVUi2JVz/2kcUQIDAQAB
------END PUBLIC KEY-----
-		";
-		$newPrivKey = "
------BEGIN PRIVATE KEY-----
-MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAM1DOLmDtKqAq6Kj
-axQ5SoirOkJ1po2jLVdP6kCubVbL9YRwpgymXEDnn1lmub10gCCIZzfQaKlgnZrM
-FMimVp47w8K7R/RhcQvUxk/ncUwNbyR+gFWuA8kmkAOtMLpMNxn0gK1Wkm8GkamR
-cOzTX+PBUJ7u6TalVSLYlXP/aRxRAgMBAAECgYAImbp0u3oEcuO+Ks6/yC7BTztf
-sYJLCP1LXUPZdfWK33zoEbhDa20OIyZgHpfFwm3j7xM0GX1pK20vIUH1rlKOt4LT
-JfnzgwSfKXwLphsc2vhCcu0qN3KfeRx6lvLjraEo8rHMzeyYvuhU4hgC8u0jVESK
-pkGlaG/nxqtE2BqsAQJBAPCgxeWkvD3tc6S6s3W6V9e/0e6w4J9gYWPDwIPq3jbT
-6/VPRKiy6amFC3q5wz4TXLcA6ej1iOZICAjbZhmlebECQQDaYBUvZ8nayPAvACG+
-dloBX8Lh4r3nN+wq19muoqekUZloSGOrsQgc/tbq0Mu1u9DuWv7IxImRD7H4piYx
-4dShAkEAuXkC8N5IZmdnktqBx0XJvbfSBex6Rv6QMsjI1CWuAI7aumvOHUZCivLN
-BVy4HFnqRfjDU1gmnHF7F/CcwznkEQJACM9fi24QgrcgmYTT169Gqk+GuT5Akxd6
-e7ABpD4DrWltWvuwqbiWrzTIzuhlj4toPnWFWewz8JpFf9aUK+cEgQJAc+vZPj8y
-66+wZyqzidMFN71nQAZD/eiZzMC8hhw5Pg/iz1hy7ZThVqhfC+f/wXWeGBWv7k5s
-pHiR1IsSRX2SEw==
------END PRIVATE KEY-----
-		";
+	protected function generateNewKeys()
+	{
+		
+		// Include the library we need
+		require_once $this->root . '/lib/EncDec.php';
+
+		// Try to get the new privkey from a cookie, in case the user has already generated but not ticked
+		// the agreement box
+		$newPrivKey = $_COOKIE[ self::COOKIE_NEW_PRIV_KEY ];
+
+		$EncDec = new EncDec();
+
+		if ( !$newPrivKey )
+		{
+			$EncDec->createNewKeys();
+			$newPrivKey = $EncDec->getPrivateKey();
+			setcookie(
+				self::COOKIE_NEW_PRIV_KEY,
+				$newPrivKey,
+				time() + 60 * 10,
+				$_path = '/wp/wp-admin',
+				$_domain = null,
+				$_secure = false,
+				$_httponly = true
+			);
+		}
+
+		// Set the permanent WP option if the user has confirmed they've saved it
+		if ($this->getInput('save_confirm') && $newPrivKey)
+		{
+			set_option(self::OPTION_PUB_KEY, $EncDec->getPublicKey());
+			unset($_COOKIE[ self::COOKIE_NEW_PRIV_KEY ]);
+			set_cookie(
+				self::COOKIE_NEW_PRIV_KEY,
+				$newPrivKey,
+				time() + 60 * 10,
+				$_path = '/wp/wp-admin',
+				$_domain = null,
+				$_secure = false,
+				$_httponly = true
+			);
+		}
 
 		return array(
-			'newPubKey' => $newPubKey,
 			'newPrivKey' => $newPrivKey,
 		);
 	}
