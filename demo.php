@@ -12,6 +12,7 @@ License: GPL2
 class EncryptDemo
 {
 	const OPTION_PUB_KEY = 'encdemo_pub_key';
+	const OPTION_PUB_KEY_HASH = 'encdemo_pub_key_hash';
 	const COOKIE_NEW_PRIV_KEY = 'wp-encrypt-plugin_new-priv-key';
 	const COOKIE_PRIV_KEY = 'wp-encrypt-plugin_priv-key';
 
@@ -201,18 +202,34 @@ class EncryptDemo
 		// Read public key from WP
 		$pubKey = get_option(self::OPTION_PUB_KEY);
 
+		// Find if this pub key has been tested
+		$isTested = sha1($pubKey) == get_option(self::OPTION_PUB_KEY_HASH);
+
 		// Get some user input, untainting where appropriate
 		$chooseImport = (bool) $this->getInput('import_keys');
 		$chooseGen = (bool) $this->getInput('gen_keys');
+		$startAgain = (bool) $this->getInput('start_again');
 
 		// Do options actions here
-		if ( $chooseGen )
+		switch (true)
 		{
-			$templateVars = $this->generateNewKeys();
-		}
-		else
-		{
-			$templateVars = array();			
+			// When the user is generating new keys
+			case $chooseGen:
+				$templateVars = $this->generateNewKeys();
+				break;
+			// When the user is importing a new key
+			case $chooseImport:
+				break;
+			// Remove all keys from WP
+			case $startAgain:
+				$templateVars = $this->eraseKeys();
+				break;
+			// When we have a public key but need to test it
+			case !$isTested:
+				$templateVars = $this->testPrivateKey();
+				break;
+			default:
+				$templateVars = array();
 		}
 
 		// Set up default vars passed to template
@@ -221,6 +238,7 @@ class EncryptDemo
 				'pubKey' => $pubKey,
 				'chooseImport' => $chooseImport,
 				'chooseGen' => $chooseGen,
+				'isTested' => $isTested,
 			),
 			$templateVars
 		);
@@ -268,7 +286,6 @@ class EncryptDemo
 
 	protected function generateNewKeys()
 	{
-		
 		// Include the library we need
 		require_once $this->root . '/lib/EncDec.php';
 
@@ -296,10 +313,11 @@ class EncryptDemo
 		// Set the permanent WP option if the user has confirmed they've saved it
 		if ($this->getInput('save_confirm') && $newPrivKey)
 		{
-			set_option(self::OPTION_PUB_KEY, $EncDec->getPublicKey());
+			$EncDec->setKeysFromPrivateKey($newPrivKey);
+			update_option(self::OPTION_PUB_KEY, $EncDec->getPublicKey());
 			unset($_COOKIE[ self::COOKIE_NEW_PRIV_KEY ]);
-			set_cookie(
-				self::COOKIE_NEW_PRIV_KEY,
+			setcookie(
+				self::COOKIE_PRIV_KEY,
 				$newPrivKey,
 				time() + 60 * 10,
 				$_path = '/wp/wp-admin',
@@ -307,11 +325,52 @@ class EncryptDemo
 				$_secure = false,
 				$_httponly = true
 			);
+
+			// Redirect after saving (303 = See Other)
+			wp_redirect('options-general.php?page=encdemo', 303);
+			exit();
 		}
 
 		return array(
 			'newPrivKey' => $newPrivKey,
 		);
+	}
+
+	protected function testPrivateKey()
+	{
+		// Include the library we need
+		require_once $this->root . '/lib/EncDec.php';
+
+		if ($this->getInput('test_key'))
+		{
+			$privKey = $this->getInput('private_key');
+
+			$EncDec = new EncDec();
+			$EncDec->setKeysFromPrivateKey($privKey);
+
+			// Ensure pub key from user input is the same as the stored version
+			$pubKey = $EncDec->getPublicKey();
+			if ($pubKey == get_option(self::OPTION_PUB_KEY))
+			{
+				update_option(self::OPTION_PUB_KEY_HASH, sha1($pubKey));
+			}
+
+			// Redirect after saving (303 = See Other)
+			wp_redirect('options-general.php?page=encdemo', 303);
+			exit();
+		}
+
+		return array();
+	}
+
+	protected function eraseKeys()
+	{
+		delete_option(self::OPTION_PUB_KEY);
+		delete_option(self::OPTION_PUB_KEY_HASH);
+
+		// Redirect after saving (303 = See Other)
+		wp_redirect('options-general.php?page=encdemo', 303);
+		exit();
 	}
 
 	protected function postHandler()

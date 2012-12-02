@@ -7,6 +7,28 @@
 				<h3 class="hndle">Encryption keys</h3>
 				<div class="inside">
 					<?php if ($pubKey): ?>
+						<p>This is your current public key:</p>
+
+						<pre><?php echo $pubKey ?></pre>
+							
+						<?php if ($isTested): ?>
+							<p>The key has been detected as working fine.</p>
+							<form method="post">
+								<div>
+									<input type="submit" name="start_again" value="Delete this key" />
+								</div>
+							</form>
+						<?php else: ?>
+							<p>Now we need to test this key. To do so, enter your private key here:</p>
+
+							<form method="post">
+								<textarea name="private_key" rows="7" cols="80"></textarea>
+								<div>
+									<input type="submit" name="test_key" value="Test private key" />
+									<input type="submit" name="start_again" value="Delete this key" />
+								</div>
+							</form>
+						<?php endif ?>
 					<?php else: ?>
 						<?php if ($chooseImport): ?>
 							<p>Suitable warning!</p>
@@ -22,7 +44,7 @@
 								<p>
 									<label>
 										<input type="checkbox" name="save_confirm" value="1" />
-										I confirm I have taken a copy of this private key
+										I confirm I have taken a permanent copy of this private key
 									</label>
 								</p>
 								<input type="submit" name="gen_keys_install" value="Install new keys" />
