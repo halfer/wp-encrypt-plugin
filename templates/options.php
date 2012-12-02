@@ -106,7 +106,7 @@
 			<ol>
 				<li>Have a few pub key hash chars per comment to achieve this?</li>
 			</ol>
-			<li>Admin banner to say when private cookie is detected</li>
+			<li><s>Admin banner to say when private cookie is detected</s></li>
 			<li>Speed tests to see if phpsec lib is faster/slower than openssl extension</li>
 			<li>Capture logout event so we can clear all our custom cookies</li>
 		</ol>

@@ -88,6 +88,9 @@ class EncryptDemo
 	{
 		// Set up handler for admin screen hook
 		add_action('admin_menu', array($this, 'screensHandler'));
+
+		// Set up handler for admin bar registration (100 = put menu item at the end of standard items)
+		add_action('admin_bar_menu', array($this, 'adminBarRegister'), 100);
 	}
 
 	protected function initCssQueueing()
@@ -95,6 +98,19 @@ class EncryptDemo
 		// See http://codex.wordpress.org/Plugin_API/Action_Reference/admin_print_styles
 		// for the reason why we're not using admin_print_styles here
 		add_action('admin_enqueue_scripts', array($this, 'queueCss'));
+	}
+
+	public function adminBarRegister(WP_Admin_Bar $WpAdminBar)
+	{
+		$privKeySet = (bool) $_COOKIE[self::COOKIE_PRIV_KEY];
+
+		$WpAdminBar->add_menu(
+			array(
+				'id' => 'encdemo_key_status',
+				'title' => $privKeySet? 'Private key set' : 'Private key unknown',
+				'href' => false,
+			)
+		);
 	}
 
 	/**
