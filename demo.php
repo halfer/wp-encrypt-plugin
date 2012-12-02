@@ -70,7 +70,7 @@ class EncryptDemo
 	 * Adding a custom column in the admin interface:
 	 *	http://stv.whtly.com/2011/07/27/adding-custom-columns-to-the-wordpress-comments-admin-page/
 	 * Don't think it's possible to insert HTML into the author column, see here:
-	 *	See http://wordpress.stackexchange.com/questions/64973/is-it-possible-to-show-custom-comment-metadata-in-the-admin-panel
+	 *	http://wordpress.stackexchange.com/questions/64973/is-it-possible-to-show-custom-comment-metadata-in-the-admin-panel
 	 */
 	protected function initNewCommentsAdmin()
 	{
@@ -128,7 +128,7 @@ class EncryptDemo
 		return $columns;		
 	}
 
-	public function commentColumnContentHandler($column, $comment_ID)
+	public function commentColumnContentHandler($column, $commentId)
 	{
 		if ( 'encrypt' == $column ) {
 			echo '<img src="/wp/wp-content/plugins/encrypt-demo/lock.png" /> Yes';
@@ -205,6 +205,7 @@ class EncryptDemo
 		$chooseImport = (bool) $this->getInput('import_keys');
 		$chooseGen = (bool) $this->getInput('gen_keys');
 
+		// Do options actions here
 		if ( $chooseGen )
 		{
 			$templateVars = $this->generateNewKeys();
@@ -320,23 +321,3 @@ class EncryptDemo
 }
 
 new EncryptDemo();
-
-// Illustrates all actions
-/*
-add_action('all','hook_catchall');
-function hook_catchall(&$s1 = '', &$s2 = '', &$s3 = '', &$s4 = '') {
-    echo "<h1>1</h1>\n";
-    print_r($s1);
-    echo "<br />\n";
-    echo "<h1>2</h1>\n";
-    print_r($s2);
-    echo "<br />\n";
-    echo "<h1>3</h1>\n";    
-    print_r($s3);
-    echo "<br />\n";
-    echo "<h1>4</h1>\n";    
-    print_r($s4);
-    echo "<br />\n";
-    return $s1;
-}
-*/
