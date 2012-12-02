@@ -90,19 +90,23 @@
 	<div class="todo-list">
 		<p>Todo:</p>
 		<ol>
-			<li>Create pub/priv pair button, plus option to add priv key manually</li>
+			<li><s>Create pub/priv pair button</s></li>
+			<li>Option to add priv key manually</li>
 			<ol>
-				<li>Can a pub key be regenerated from a priv key?</li>
+				<li><s>Can a pub key be regenerated from a priv key?</s></li>
 			</ol>
 			<li>Allow user to choose number of bits (<a href="http://php.net/manual/en/function.openssl-pkey-new.php"
 				>use configargs</a>)</li>
-			<li>Save public key in WP options</li>
-			<li>Set up private key in cookie</li>
-			<li>Confirm priv key is saved
-			<li>View private key button (JS)</li>
-			<li>Create repo on Github</li>
+			<li><s>Save public key in WP options</s></li>
+			<li><s>Set up private key in cookie</s></li>
+			<li><s>Confirm priv key is saved</s></li>
+			<li><s>Create repo on Github</s></li>
 			<li>Healthcheck: count number of pub keys used across all comments (if more than one, then report
 				it as a problem in UI)</li>
+			<ol>
+				<li>Have a few pub key hash chars per comment to achieve this?</li>
+			</ol>
+			<li>Admin banner to say when private cookie is detected</li>
 			<li>Speed tests to see if phpsec lib is faster/slower than openssl extension</li>
 			<li>Capture logout event so we can clear all our custom cookies</li>
 		</ol>
