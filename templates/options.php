@@ -76,6 +76,9 @@
 				</div>
 			</div>
 
+			<?php /* Render status block */ ?>
+			<?php $this->Template->renderComponent('EncryptDemoStatus', 'status') ?>
+
 			<div class="postbox">
 				<h3 class="hndle">Configuration</h3>
 				<div class="inside">
@@ -105,10 +108,12 @@
 				it as a problem in UI)</li>
 			<ol>
 				<li>Have a few pub key hash chars per comment to achieve this?</li>
+				<li>Are there db calls to do counts of comments with certain metadata fields?</li>
 			</ol>
 			<li><s>Admin banner to say when private cookie is detected</s></li>
 			<li>Speed tests to see if phpsec lib is faster/slower than openssl extension</li>
 			<li>Capture logout event so we can clear all our custom cookies</li>
+			<li>Help blocks for options and search screens</li>
 		</ol>
 	</div>
 </div>

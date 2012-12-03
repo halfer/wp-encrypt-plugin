@@ -19,6 +19,8 @@ class EncryptDemo
 	// Stores the plugin folder path
 	protected $root;
 
+	protected $Template;
+
 	// Used to pass template rendering values around this object
 	protected $templateVars = array();
 
@@ -26,6 +28,10 @@ class EncryptDemo
 	{
 		// Set up root folder
 		$this->root = dirname(__FILE__);
+
+		// Load library helper
+		require_once $this->root . '/lib/EncryptTemplate.php';
+		$this->Template = new EncryptTemplate($this->root);
 
 		// Initialisation
 		$this->initDecryptedEmail();
