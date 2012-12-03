@@ -7,6 +7,10 @@
 	<p class="error">
 		That's not a valid key - please try again.
 	</p>
+<?php elseif ($isNoSaveConfirm): ?>
+	<p class="error">
+		You must tick the confirmation box to proceed.
+	</p>
 <?php endif ?>
 
 <?php if (false): ?>

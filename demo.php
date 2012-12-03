@@ -29,6 +29,7 @@ class EncryptDemo
 
 	const KEY_BAD_KEY = 'bad_priv_key';
 	const KEY_WRONG_KEY = 'wrong_priv_key';
+	const KEY_NO_SAVE_CONFIRM = 'no_key_save_confirm';
 
 	// Stores the plugin folder path
 	protected $root;
@@ -306,13 +307,14 @@ class EncryptDemo
 		$supportsSSL = extension_loaded('openssl');
 
 		// Check some message values
-		$isBadKey = $isWrongKey = false;
+		$isBadKey = $isWrongKey = $isNoSaveConfirm = false;
 		if (!$this->templateVars['isTested'])
 		{
 			if ($error = $this->getInput('error'))
 			{
 				$isBadKey = ($error == self::KEY_BAD_KEY);
 				$isWrongKey = ($error == self::KEY_WRONG_KEY);
+				$isNoSaveConfirm = ($error == self::KEY_NO_SAVE_CONFIRM);
 			}
 		}
 
@@ -323,6 +325,7 @@ class EncryptDemo
 				array(
 					'isBadKey' => $isBadKey,
 					'isWrongKey' => $isWrongKey,
+					'isNoSaveConfirm' => $isNoSaveConfirm,
 				)
 			)
 		);
@@ -367,7 +370,9 @@ class EncryptDemo
 
 		$EncDec = new EncDec();
 
-		if ( !$newPrivKey )
+		// Firstly, just store the private key in a cookie, so we can later ask the user if they
+		// have saved the key to their computer
+		if ( !$newPrivKey && $_GET )
 		{
 			$EncDec->createNewKeys();
 			$newPrivKey = $EncDec->getPrivateKey();
@@ -382,33 +387,46 @@ class EncryptDemo
 			);
 		}
 
-		// Set the permanent WP option if the user has confirmed they've saved it
-		if ($this->getInput('save_confirm') && $newPrivKey)
+		// If the user has confirmed they've saved the priv key, set the pub key in the WP options database
+		if ($newPrivKey && $_POST)
 		{
-			$ok = $EncDec->setKeysFromPrivateKey($newPrivKey);
+			$append = null;
+
+			// If the user has confirmed they've saved the priv key, set the pub key in the WP
+			// options database
 			$error = false;
-			if ($ok)
+			if ($this->getInput('save_confirm'))
 			{
-				update_option(self::OPTION_PUB_KEY, $EncDec->getPublicKey());
-				unset($_COOKIE[ self::COOKIE_NEW_PRIV_KEY ]);
-				setcookie(
-					self::COOKIE_PRIV_KEY,
-					$newPrivKey,
-					time() + 60 * 10,
-					$_path = '/wp/wp-admin',
-					$_domain = null,
-					$_secure = false,
-					$_httponly = true
-				);
+				$ok = $EncDec->setKeysFromPrivateKey($newPrivKey);
+				if ($ok)
+				{
+					update_option(self::OPTION_PUB_KEY, $EncDec->getPublicKey());
+					unset($_COOKIE[ self::COOKIE_NEW_PRIV_KEY ]);
+					setcookie(
+						self::COOKIE_PRIV_KEY,
+						$newPrivKey,
+						time() + 60 * 10,
+						$_path = '/wp/wp-admin',
+						$_domain = null,
+						$_secure = false,
+						$_httponly = true
+					);
+				}
+				else
+				{
+					$error = self::KEY_BAD_KEY;
+				}
 			}
 			else
 			{
-				$error = self::KEY_BAD_KEY;
+				// User has forgotten to confirm, ask them to try again
+				$error = self::KEY_NO_SAVE_CONFIRM;
+				$append = '&gen_keys=1';
 			}
 
 			// Redirect after saving (303 = See Other)
 			wp_redirect(
-				'options-general.php?page=encdemo' . ($error ? '&error=' . $error : ''),
+				'options-general.php?page=encdemo' . ($error ? '&error=' . $error : '') . $append,
 				303
 			);
 			exit();

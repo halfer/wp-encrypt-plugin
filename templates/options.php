@@ -17,6 +17,7 @@
 							'newPrivKey' => $newPrivKey,
 							'isBadKey' => $isBadKey,
 							'isWrongKey' => $isWrongKey,
+							'isNoSaveConfirm' => $isNoSaveConfirm,
 						)
 					) ?>
 				</div>
