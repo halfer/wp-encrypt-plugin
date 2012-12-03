@@ -32,7 +32,7 @@
 			</div>
 
 			<div class="postbox">
-				<h3 class="hndle">Configuration</h3>
+				<h3 class="hndle">Settings</h3>
 				<div class="inside">
 					<?php $this->Template->renderPartial('settings') ?>
 				</div>
