@@ -15,6 +15,11 @@ class EncryptTemplate
 		require_once "{$this->root}/templates/{$template}.php";
 	}
 
+	public function renderPartial($template, array $params = array())
+	{
+		return $this->renderTemplate('_' . $template, $params);
+	}
+
 	public function renderComponent($class, $template)
 	{
 		require_once $this->root . '/components/' . $class . '.php';
