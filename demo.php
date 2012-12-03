@@ -11,10 +11,18 @@ License: GPL2
 
 class EncryptDemo
 {
+	// Stores values in WP options
 	const OPTION_PUB_KEY = 'encdemo_pub_key';
 	const OPTION_PUB_KEY_HASH = 'encdemo_pub_key_hash';
+
+	// Stores values in user cookies
 	const COOKIE_NEW_PRIV_KEY = 'wp-encrypt-plugin_new-priv-key';
 	const COOKIE_PRIV_KEY = 'wp-encrypt-plugin_priv-key';
+
+	// Stores values in comment metadata
+	const META_ENCRYPTED = 'encdemo_encrypt';
+	const META_PUB_KEY_HASH = 'encdemo_pub_key_hash';
+	const META_VERSION = 'encdemo_version';
 
 	// Stores the plugin folder path
 	protected $root;
