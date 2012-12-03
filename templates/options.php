@@ -15,6 +15,8 @@
 							'chooseImport' => $chooseImport,
 							'chooseGen' => $chooseGen,
 							'newPrivKey' => $newPrivKey,
+							'isBadKey' => $isBadKey,
+							'isWrongKey' => $isWrongKey,
 						)
 					) ?>
 				</div>

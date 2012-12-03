@@ -23,14 +23,16 @@ class EncDec {
 	public function setKeysFromPrivateKey($privateKey)
 	{
 		$res = openssl_pkey_get_private($privateKey);
-		if ($res === false)
+		$ok = ($res !== false);
+
+		if ($ok)
 		{
-			// @todo We need to handle bad priv keys here
+			$pubKey = openssl_pkey_get_details($res);
+			$this->privKey = $privateKey;
+			$this->pubKey = $pubKey['key'];
 		}
 
-		$pubKey = openssl_pkey_get_details($res);
-		$this->privKey = $privateKey;
-		$this->pubKey = $pubKey['key'];
+		return $ok;
 	}
 
 	public function getPublicKey() {

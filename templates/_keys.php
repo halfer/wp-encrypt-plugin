@@ -1,3 +1,20 @@
+
+<?php if ($isWrongKey): ?>
+	<p class="error">
+		That's not the correct private key - please try again.
+	</p>
+<?php elseif ($isBadKey): ?>
+	<p class="error">
+		That's not a valid key - please try again.
+	</p>
+<?php endif ?>
+
+<?php if (false): ?>
+	<p class="succeed">
+		That key worked fine, and matched the public key on record. You're good to go!
+	</p>
+<?php endif ?>
+
 <?php if ($pubKey): ?>
 	<p>This is your current public key:</p>
 

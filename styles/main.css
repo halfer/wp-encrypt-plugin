@@ -9,3 +9,24 @@
 #encrypt-demo-options pre {
 	font-size: 0.8em;
 }
+
+#encrypt-demo-options p.error {
+	border: 1px solid #e60000;
+	max-width: 100%;
+	color: #e60000;
+	background-color: #ffe8e8;
+	border-radius: 3px;
+	padding: 4px;
+	font-weight: bold;
+}
+
+#encrypt-demo-options p.succeed {
+	border: 1px solid #00aa00;
+	max-width: 100%;
+	color: #00aa00;
+	background-color: #e8ffe8;
+	border-radius: 3px;
+	padding: 4px;
+	font-weight: bold;
+}
+

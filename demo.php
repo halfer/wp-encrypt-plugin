@@ -27,6 +27,9 @@ class EncryptDemo
 	const META_PUB_KEY_HASH = 'encdemo_pub_key_hash';
 	const META_VERSION = 'encdemo_version';
 
+	const KEY_BAD_KEY = 'bad_priv_key';
+	const KEY_WRONG_KEY = 'wrong_priv_key';
+
 	// Stores the plugin folder path
 	protected $root;
 
@@ -302,9 +305,26 @@ class EncryptDemo
 		// Ensure Open SSL is supported
 		$supportsSSL = extension_loaded('openssl');
 
+		// Check some message values
+		$isBadKey = $isWrongKey = false;
+		if (!$this->templateVars['isTested'])
+		{
+			if ($error = $this->getInput('error'))
+			{
+				$isBadKey = ($error == self::KEY_BAD_KEY);
+				$isWrongKey = ($error == self::KEY_WRONG_KEY);
+			}
+		}
+
 		$this->renderTemplate(
 			$supportsSSL ? 'options' : 'options-nossl',
-			$this->templateVars
+			array_merge(
+				$this->templateVars,
+				array(
+					'isBadKey' => $isBadKey,
+					'isWrongKey' => $isWrongKey,
+				)
+			)
 		);
 	}
 
@@ -365,21 +385,32 @@ class EncryptDemo
 		// Set the permanent WP option if the user has confirmed they've saved it
 		if ($this->getInput('save_confirm') && $newPrivKey)
 		{
-			$EncDec->setKeysFromPrivateKey($newPrivKey);
-			update_option(self::OPTION_PUB_KEY, $EncDec->getPublicKey());
-			unset($_COOKIE[ self::COOKIE_NEW_PRIV_KEY ]);
-			setcookie(
-				self::COOKIE_PRIV_KEY,
-				$newPrivKey,
-				time() + 60 * 10,
-				$_path = '/wp/wp-admin',
-				$_domain = null,
-				$_secure = false,
-				$_httponly = true
-			);
+			$ok = $EncDec->setKeysFromPrivateKey($newPrivKey);
+			$error = false;
+			if ($ok)
+			{
+				update_option(self::OPTION_PUB_KEY, $EncDec->getPublicKey());
+				unset($_COOKIE[ self::COOKIE_NEW_PRIV_KEY ]);
+				setcookie(
+					self::COOKIE_PRIV_KEY,
+					$newPrivKey,
+					time() + 60 * 10,
+					$_path = '/wp/wp-admin',
+					$_domain = null,
+					$_secure = false,
+					$_httponly = true
+				);
+			}
+			else
+			{
+				$error = self::KEY_BAD_KEY;
+			}
 
 			// Redirect after saving (303 = See Other)
-			wp_redirect('options-general.php?page=encdemo', 303);
+			wp_redirect(
+				'options-general.php?page=encdemo' . ($error ? '&error=' . $error : ''),
+				303
+			);
 			exit();
 		}
 
@@ -398,17 +429,32 @@ class EncryptDemo
 			$privKey = $this->getInput('private_key');
 
 			$EncDec = new EncDec();
-			$EncDec->setKeysFromPrivateKey($privKey);
+			$ok = $EncDec->setKeysFromPrivateKey($privKey);
 
 			// Ensure pub key from user input is the same as the stored version
-			$pubKey = $EncDec->getPublicKey();
-			if ($pubKey == get_option(self::OPTION_PUB_KEY))
+			$error = false;
+			if ($ok)
 			{
-				update_option(self::OPTION_PUB_KEY_HASH, sha1($pubKey));
+				$pubKey = $EncDec->getPublicKey();
+				if ($pubKey == get_option(self::OPTION_PUB_KEY))
+				{
+					update_option(self::OPTION_PUB_KEY_HASH, sha1($pubKey));
+				}
+				else
+				{
+					$error = self::KEY_WRONG_KEY;
+				}
+			}
+			else
+			{
+				$error = self::KEY_BAD_KEY;
 			}
 
 			// Redirect after saving (303 = See Other)
-			wp_redirect('options-general.php?page=encdemo', 303);
+			wp_redirect(
+				'options-general.php?page=encdemo' . ($error ? '&error=' . $error : ''),
+				303
+			);
 			exit();
 		}
 
