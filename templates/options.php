@@ -23,6 +23,13 @@
 				</div>
 			</div>
 
+			<div class="postbox">
+				<h3 class="hndle">Settings</h3>
+				<div class="inside">
+					<?php $this->Template->renderPartial('settings') ?>
+				</div>
+			</div>
+
 			<?php /* Render status block */ ?>
 			<div class="postbox">
 				<h3 class="hndle">Status</h3>
@@ -32,10 +39,10 @@
 			</div>
 
 			<div class="postbox">
-				<h3 class="hndle">Settings</h3>
+				<h3 class="hndle">Operation mode</h3>
 				<div class="inside">
-					<?php $this->Template->renderPartial('settings') ?>
-				</div>
+					<?php $this->Template->renderPartial('operation') ?>
+				</div>				
 			</div>
 		</div>
 	</div>
