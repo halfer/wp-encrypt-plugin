@@ -3,5 +3,5 @@
 	<?php echo $testCommentCount ?> are test-encrypted (i.e. the data is stored
 	in plain text as well).</p>
 
-<p>Of the encrypted comments, there are <?php echo $encryptionKeyCount ?> separate keys in use
+<p>Of the encrypted comments, there are <?php echo $encryptionKeyCount ?> different keys in use
 	(more than one is unusual).</p>
