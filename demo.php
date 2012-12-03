@@ -11,6 +11,9 @@ License: GPL2
 
 class EncryptDemo
 {
+	// Paths
+	const PATH_PLUGIN_NAME = 'wp-encrypt-plugin';
+
 	// Stores values in WP options
 	const OPTION_PUB_KEY = 'encdemo_pub_key';
 	const OPTION_PUB_KEY_HASH = 'encdemo_pub_key_hash';
@@ -48,12 +51,6 @@ class EncryptDemo
 		$this->initMetaAction();
 		$this->initScreens();
 		$this->initCssQueueing();
-
-		// Handle POST (we can probably skip a few inits above, since we'll redirect anyway after the op)
-		if ($_POST)
-		{
-			$this->postHandler();
-		}
 	}
 
 	/**
@@ -159,15 +156,26 @@ class EncryptDemo
 		return $columns;		
 	}
 
+	/**
+	 * Renders an encryption status for the specified comment
+	 * 
+	 * @todo Fix dummy output
+	 * @todo Remove hardwired path, get plugin http path from wp
+	 * 
+	 * @param string $column
+	 * @param integer $commentId
+	 */
 	public function commentColumnContentHandler($column, $commentId)
 	{
 		if ( 'encrypt' == $column ) {
-			echo '<img src="/wp/wp-content/plugins/encrypt-demo/lock.png" /> Yes';
+			echo '<img src="/wp/wp-content/plugins/' . self::PATH_PLUGIN_NAME . '/lock.png" /> Yes';
 		}		
 	}
 
 	/**
 	 * Renders the 'Ban IP X' by decoding the IP in the comment
+	 * 
+	 * @todo Fix dummy output
 	 * 
 	 * @param array $actions
 	 * @return string
@@ -209,6 +217,13 @@ class EncryptDemo
 		);
 	}
 
+	/**
+	 * Registers CSS styles for our pages only
+	 * 
+	 * @todo Remove hardwired path, get plugin http path from wp
+	 * 
+	 * @param string $hook
+	 */
 	public function queueCss($hook)
 	{
 		if ($hook == 'settings_page_encdemo')
@@ -216,7 +231,7 @@ class EncryptDemo
 			// @todo Fix the absolute pathname here
 			wp_register_style(
 				'encdemo_css',
-				'/wp-content/plugins/encrypt-demo/styles/main.css'
+				'/wp-content/plugins/' . self::PATH_PLUGIN_NAME . '/styles/main.css'
 			);
 			wp_enqueue_style('encdemo_css');
 		}
@@ -314,6 +329,13 @@ class EncryptDemo
 		return isset($_REQUEST[$key]) ? $_REQUEST[$key] : null;
 	}
 
+	/**
+	 * An action method to handle the generation of pub/priv keys
+	 * 
+	 * @todo Fix up the cookie relative http paths, get this from wp
+	 * 
+	 * @return array Variables to pass to the template
+	 */
 	protected function generateNewKeys()
 	{
 		// Include the library we need
@@ -401,11 +423,6 @@ class EncryptDemo
 		// Redirect after saving (303 = See Other)
 		wp_redirect('options-general.php?page=encdemo', 303);
 		exit();
-	}
-
-	protected function postHandler()
-	{
-		
 	}
 }
 
