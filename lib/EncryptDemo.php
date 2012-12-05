@@ -247,6 +247,7 @@ class EncryptDemo extends EncryptTemplate
 				break;
 			// When the user is importing a new key
 			case $chooseImport:
+				$templateVars = $this->importKeys();
 				break;
 			// Remove all keys from WP
 			case $startAgain:
@@ -407,11 +408,11 @@ class EncryptDemo extends EncryptTemplate
 
 	protected function testPrivateKey()
 	{
-		// Include the library we need
-		require_once $this->root . '/lib/EncDec.php';
-
 		if ($this->getInput('test_key'))
 		{
+			// Include the library we need
+			require_once $this->root . '/lib/EncDec.php';
+
 			$privKey = $this->getInput('private_key');
 
 			$EncDec = new EncDec();
@@ -424,7 +425,7 @@ class EncryptDemo extends EncryptTemplate
 				$pubKey = $EncDec->getPublicKey();
 				if ($pubKey == get_option(self::OPTION_PUB_KEY))
 				{
-					update_option(self::OPTION_PUB_KEY_HASH, sha1($pubKey));
+					update_option(self::OPTION_PUB_KEY_HASH, $EncDec->getPublicKeyLongHash());
 				}
 				else
 				{
@@ -455,5 +456,40 @@ class EncryptDemo extends EncryptTemplate
 		// Redirect after saving (303 = See Other)
 		wp_redirect('options-general.php?page=encdemo', 303);
 		exit();
+	}
+
+	protected function importKeys()
+	{
+		// Handle the form post here
+		if ($_POST)
+		{
+			// Include the library we need
+			require_once $this->root . '/lib/EncDec.php';
+
+			$privKey = $this->getInput('private_key');
+
+			$EncDec = new EncDec();
+			$ok = $EncDec->setKeysFromPrivateKey($privKey);
+			if ($ok)
+			{
+				$pubKey = $EncDec->getPublicKey();
+				update_option(self::OPTION_PUB_KEY, $pubKey);
+				update_option(self::OPTION_PUB_KEY_HASH, $EncDec->getPublicKeyLongHash());
+
+				wp_redirect(
+					'options-general.php?page=encdemo&imported_ok=1',
+					303
+				);
+			}
+			else
+			{
+				wp_redirect(
+					'options-general.php?page=encdemo&import_keys=1&error=' . self::KEY_BAD_KEY,
+					303
+				);
+			}
+		}
+
+		return array();
 	}
 }

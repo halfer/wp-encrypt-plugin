@@ -44,6 +44,11 @@ class EncDec {
 		return $this->pubKey;
 	}
 
+	public function getPublicKeyLongHash()
+	{
+		return trim(sha1($this->getPublicKey()));
+	}
+
 	public function getPrivateKey() {
 		return $this->privKey;
 	}
