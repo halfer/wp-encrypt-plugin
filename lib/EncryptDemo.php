@@ -142,7 +142,6 @@ class EncryptDemo extends EncryptTemplate
 	/**
 	 * Renders an encryption status for the specified comment
 	 * 
-	 * @todo Fix dummy output
 	 * @todo Remove hardwired path, get plugin http path from wp
 	 * 
 	 * @param string $column
@@ -151,8 +150,25 @@ class EncryptDemo extends EncryptTemplate
 	public function commentColumnContentHandler($column, $commentId)
 	{
 		if ( 'encrypt' == $column ) {
-			echo '<img src="/wp/wp-content/plugins/' . self::PATH_PLUGIN_NAME . '/lock.png" /> Yes';
-		}		
+			$comment = get_comment($commentId);
+			$metaEncrypted = get_comment_meta($commentId, self::META_ENCRYPTED);
+
+			if ($comment->comment_author_email && $comment->comment_author_IP)
+			{
+				if ($metaEncrypted)
+				{
+					echo '<img src="/wp/wp-content/plugins/' . self::PATH_PLUGIN_NAME . '/lock.png" /> Test';
+				}
+				else
+				{
+					echo '<img src="/wp/wp-content/plugins/' . self::PATH_PLUGIN_NAME . '/lock.png" /> No';					
+				}
+			}
+			else
+			{
+				echo '<img src="/wp/wp-content/plugins/' . self::PATH_PLUGIN_NAME . '/lock.png" /> Yes';	
+			}
+		}
 	}
 
 	/**
