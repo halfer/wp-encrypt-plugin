@@ -32,7 +32,7 @@
 			encryptionRunning = true;
 			callbackBusy = false;
 
-			timerHandle = setInterval(encryptionCallback, 1000);
+			timerHandle = setInterval(encryptionCallback, 2000);
 
 			return false;
 		});

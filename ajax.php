@@ -32,7 +32,7 @@ class AjaxHandler
 	public function __construct()
 	{
 		// Validate the private key
-		$this->checkPrivateKey();
+		$this->checkPublicKey();
 
 		// Get the action from settings store, and validate it (nothing to do if it is off)
 		$action = $this->getAction();
@@ -48,26 +48,43 @@ class AjaxHandler
 			$this->doAction($action, $comment);
 			$this->beKindToTheCpu($delay);
 		}
+
+		echo json_encode(
+			array(
+				'count' => count($comments),
+			)
+		);
 	}
 
-	protected function checkPrivateKey()
+	/**
+	 * Ensures that we have a public key
+	 */
+	protected function checkPublicKey()
 	{
-		
+		// Does nothing at the moment
 	}
 
 	protected function getAction()
 	{
-		return 0;
+		return self::ACTION_TEST_ENCRYPT;
 	}
 
+	/**
+	 * Exits with an error if mode = off
+	 */
 	protected function validateAction()
 	{
-		
+		// Does nothing at the moment
 	}
 
+	/**
+	 * Returns delay between operations, in millions of a second
+	 * 
+	 * @return int
+	 */
 	protected function getDelaySetting()
 	{
-		
+		return 1000;
 	}
 
 	/**
@@ -86,6 +103,7 @@ class AjaxHandler
 		/* @var $wpdb wpdb */
 		global $wpdb;
 
+		$sql = '';
 		switch ($action)
 		{
 			case self::ACTION_TEST_ENCRYPT:
@@ -114,6 +132,19 @@ class AjaxHandler
 			case self::ACTION_FULL_DECRYPT:
 				break;
 		}
+
+		$rows = null;
+		if ($sql)
+		{
+			$rows = $wpdb->get_results($wpdb->prepare($sql));
+		}
+
+		return is_array($rows) ? $rows : array();
+	}
+
+	protected function doAction($action, $comment)
+	{
+		
 	}
 
 	protected function beKindToTheCpu($delay)
@@ -122,6 +153,4 @@ class AjaxHandler
 	}
 }
 
-echo json_encode(
-	array()
-);
+new AjaxHandler();
