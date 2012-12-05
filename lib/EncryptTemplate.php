@@ -33,6 +33,16 @@ class EncryptTemplate
 		$this->renderTemplate('_' . $template, $templateVars);
 	}
 
+	public function getRenderedComponent($class, $template)
+	{
+		$ok = ob_start();
+		$this->renderComponent($class, $template);
+		$contents = ob_get_contents();
+		ob_clean();
+
+		return $contents;
+	}
+
 	protected function getInput($key)
 	{
 		return isset($_REQUEST[$key]) ? $_REQUEST[$key] : null;

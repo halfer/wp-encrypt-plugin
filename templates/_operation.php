@@ -65,10 +65,15 @@
 	}
 
 	/**
-	 * This handles the AJAX calls
+	 * This handles the AJAX success callbacks
 	 */
-	function ajaxSuccessCallback() {
+	function ajaxSuccessCallback(data) {
 		callbackBusy = false;
+
+		// Update the html status block
+		if (data.status_block) {
+			jQuery('#status_block').html(data.status_block);
+		}
 	}
 
 </script>

@@ -1,7 +1,9 @@
-<p>There are <?php echo $commentCount ?> comments in the blog, of which
-	<?php echo $encryptedCommentCount ?> are fully encrypted, and
-	<?php echo $testCommentCount ?> are test-encrypted (i.e. the data is stored
-	in plain text as well).</p>
+<div id="status_block">
+	<p>There are <?php echo $commentCount ?> comments in the blog, of which
+		<?php echo $encryptedCommentCount ?> are fully encrypted, and
+		<?php echo $testCommentCount ?> are test-encrypted (i.e. the data is stored
+		in plain text as well).</p>
 
-<p>Of the encrypted comments, there are <?php echo $encryptionKeyCount ?> different keys in use
-	(more than one is unusual).</p>
+	<p>Of the encrypted comments, there are <?php echo $encryptionKeyCount ?> different keys in use
+		(more than one is unusual).</p>
+</div>

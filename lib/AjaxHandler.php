@@ -36,12 +36,12 @@ class AjaxHandler extends EncryptTemplate
 			$this->beKindToTheCpu($delay);
 		}
 
-		// Init the template system here, so we can render the _status component/partial
-		// and inject the result
+		$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
 
 		echo json_encode(
 			array(
 				'count' => count($comments),
+				'status_block' => $html,
 				'peak_mem_usage' => memory_get_peak_usage(),
 			)
 		);
