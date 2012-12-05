@@ -37,15 +37,19 @@
 			return false;
 		});
 		jQuery('#button_stop_encryption').click(function() {
-			jQuery('#button_start_encryption').show();
-			jQuery('#button_stop_encryption').hide();
-			
-			clearTimeout(timerHandle);
-			encryptionRunning = false;
+			stopDecryption();
 
 			return false;
 		});
 	});
+
+	function stopDecryption() {
+		jQuery('#button_start_encryption').show();
+		jQuery('#button_stop_encryption').hide();
+
+		clearTimeout(timerHandle);
+		encryptionRunning = false;
+	}
 
 	/**
 	 * This is called to make the AJAX calls
@@ -70,9 +74,15 @@
 	function ajaxSuccessCallback(data) {
 		callbackBusy = false;
 
-		// Update the html status block
-		if (data.status_block) {
-			jQuery('#status_block').html(data.status_block);
+		// If a number of comments were processed then...
+		if (data.count > 0) {
+			// ...update the html status block
+			if (data.status_block) {
+				jQuery('#status_block').html(data.status_block);
+			}
+		} else {
+			// If zero comments were processed, turn off
+			stopDecryption();
 		}
 	}
 
