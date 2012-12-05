@@ -23,14 +23,14 @@ class EncryptDemoStatus
 		$commentCount = $wpdb->get_var($wpdb->prepare($sql));
 		
 		// Count all comments that are test-encrypted
-		$sql = $this->sqlMeta($wpdb, '!=');
+		$sql = $this->sqlMeta($wpdb, 'NOT');
 		$testCommentCount = $wpdb->get_var($wpdb->prepare($sql));
 
 		// Count all comments that are fully encrypted
-		$sql = $this->sqlMeta($wpdb, '=');
+		$sql = $this->sqlMeta($wpdb, '');
 		$encryptedCommentCount = $wpdb->get_var($wpdb->prepare($sql));
 		
-		// Count the number of different key hashes (in genersl we want this to be one)
+		// Count the number of different key hashes (in general we want this to be one)
 		$sql = "
 			SELECT
 				COUNT(*)
@@ -55,7 +55,7 @@ class EncryptDemoStatus
 		);
 	}
 
-	protected function sqlMeta(wpdb $wpdb, $comparator)
+	protected function sqlMeta(wpdb $wpdb, $not)
 	{
 		return "
 			SELECT
@@ -65,8 +65,10 @@ class EncryptDemoStatus
 			INNER JOIN $wpdb->commentmeta meta ON (comments.comment_ID = meta.comment_id)
 			WHERE
 				meta.meta_key = '" . EncryptDemo::META_ENCRYPTED . "'
-				AND comments.comment_author_email {$comparator} ''
-				AND comments.comment_author_IP {$comparator} ''
+				AND $not (
+					comments.comment_author_email = ''
+					AND comments.comment_author_IP = ''
+				)
 		";
 	}
 }

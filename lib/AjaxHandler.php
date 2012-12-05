@@ -75,7 +75,7 @@ class AjaxHandler extends EncryptTemplate
 	 */
 	protected function getDelaySetting()
 	{
-		return 1000;
+		return 10000;
 	}
 
 	/**
@@ -89,7 +89,7 @@ class AjaxHandler extends EncryptTemplate
 	 * 
 	 * @param string $action
 	 */
-	protected function getComments($action, $limit = 500)
+	protected function getComments($action, $limit = 400)
 	{
 		/* @var $wpdb wpdb */
 		global $wpdb;
@@ -109,9 +109,12 @@ class AjaxHandler extends EncryptTemplate
 							AND meta.meta_key = 'encdemo_encrypt'
 						)
 					WHERE
+						/* i.e. no corresponding meta row */
 						meta.meta_id IS NULL
-						AND comments.comment_author_email != ''
-						AND comments.comment_author_IP != ''
+						AND (
+							comments.comment_author_email != ''
+							OR comments.comment_author_IP != ''
+						)
 					LIMIT
 						$limit
 				";
