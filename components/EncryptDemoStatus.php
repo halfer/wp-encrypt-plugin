@@ -40,7 +40,7 @@ class EncryptDemoStatus
 				FROM
 					$wpdb->commentmeta meta
 				WHERE
-					meta.meta_key = '" . EncryptDemo::META_ENCRYPTED . "'
+					meta.meta_key = '" . EncryptDemo::META_PUB_KEY_HASH . "'
 				GROUP BY
 					meta.meta_value
 			) key_list

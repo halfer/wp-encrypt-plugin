@@ -35,6 +35,11 @@ class EncDec {
 		return $ok;
 	}
 
+	public function setPublicKey($pubKey)
+	{
+		$this->pubKey = $pubKey;
+	}
+
 	public function getPublicKey() {
 		return $this->pubKey;
 	}

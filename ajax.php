@@ -1,20 +1,17 @@
 <?php
 
-// @todo Is there a better way to specify this folder?
+// Decide where the WP root folder is
 $root = realpath(dirname(__FILE__) . '/../../..');
 $loader = $root . '/wp-load.php';
-if (file_exists($loader))
-{
-	// Standard plugin operation
-	require_once $loader;
-}
-else
+if (!file_exists($loader))
 {
 	// Useful when developing plugin outside of WP folders - use symlink of "wp-root"
-	$root = dirname(__FILE__);
-	$loader = $root . '/wp-root/wp-load.php';
-	require_once $loader;
+	$root = dirname(__FILE__) . '/wp-root';
+	$loader = $root . '/wp-load.php';
 }
+
+require_once $loader;
+require_once $root . '/wp-content/plugins/wp-encrypt-plugin/lib/EncDec.php';
 
 if (!current_user_can('manage_options'))
 {
@@ -29,9 +26,12 @@ class AjaxHandler
 	const ACTION_TEST_DECRYPT = 3;
 	const ACTION_FULL_DECRYPT = 4;
 
+	protected $encoder;
+
 	public function __construct()
 	{
-		// Validate the private key
+		// Validate the public key
+		$pubKey = get_option('encdemo_pub_key');
 		$this->checkPublicKey();
 
 		// Get the action from settings store, and validate it (nothing to do if it is off)
@@ -40,6 +40,11 @@ class AjaxHandler
 
 		// Get speed setting
 		$delay = $this->getDelaySetting();
+
+		// Set up encryption class
+		// @todo Switch the option string to a constant from another class
+		$this->encoder = new EncDec();
+		$this->encoder->setPublicKey($pubKey);
 
 		// Process comments
 		$comments = $this->getComments($action);
@@ -52,6 +57,7 @@ class AjaxHandler
 		echo json_encode(
 			array(
 				'count' => count($comments),
+				'peak_mem_usage' => memory_get_peak_usage(),
 			)
 		);
 	}
@@ -98,7 +104,7 @@ class AjaxHandler
 	 * 
 	 * @param string $action
 	 */
-	protected function getComments($action, $limit = 100)
+	protected function getComments($action, $limit = 500)
 	{
 		/* @var $wpdb wpdb */
 		global $wpdb;
@@ -142,9 +148,47 @@ class AjaxHandler
 		return is_array($rows) ? $rows : array();
 	}
 
-	protected function doAction($action, $comment)
+	protected function doAction($action, stdClass $comment)
 	{
-		
+		switch ($action)
+		{
+			case self::ACTION_TEST_ENCRYPT:
+			case self::ACTION_FULL_ENCRYPT:
+				// Here's the encryption itself
+				$email = $this->encoder->encrypt($comment->comment_author_email);
+				$ip = $this->encoder->encrypt($comment->comment_author_IP);
+
+				// Here we store the data in one metadata item
+				add_comment_meta(
+					$comment->comment_ID,
+					'encdemo_encrypt',
+					$email . "\n" . $ip,
+					true
+				);
+
+				// We also store a partial hash of the key
+				add_comment_meta(
+					$comment->comment_ID,
+					'encdemo_pub_key_hash',
+					$this->getPublicKeyHash(),
+					true
+				);
+				break;
+		}
+	}
+
+	/**
+	 * Gets a partial sha1 hash of the current pub key
+	 * 
+	 * @todo Should we just hash the key itself, and not the ascii armour?
+	 * 
+	 * @return string
+	 */
+	protected function getPublicKeyHash()
+	{
+		$key = trim($this->encoder->getPublicKey());
+
+		return substr(sha1($key), 0, 12);
 	}
 
 	protected function beKindToTheCpu($delay)
