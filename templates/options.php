@@ -7,7 +7,7 @@
 				<h3 class="hndle">Encryption keys</h3>
 				<div class="inside">
 					<?php /* Render various states of key configuration block */ ?>
-					<?php $this->Template->renderPartial(
+					<?php $this->renderPartial(
 						'keys',
 						array(
 							'pubKey' => $pubKey,
@@ -26,7 +26,7 @@
 			<div class="postbox">
 				<h3 class="hndle">Settings</h3>
 				<div class="inside">
-					<?php $this->Template->renderPartial('settings') ?>
+					<?php $this->renderPartial('settings') ?>
 				</div>
 			</div>
 
@@ -34,20 +34,20 @@
 			<div class="postbox">
 				<h3 class="hndle">Status</h3>
 				<div class="inside">
-					<?php $this->Template->renderComponent('EncryptDemoStatus', 'status') ?>
+					<?php $this->renderComponent('EncryptDemoStatus', 'status') ?>
 				</div>
 			</div>
 
 			<div class="postbox">
 				<h3 class="hndle">Operation mode</h3>
 				<div class="inside">
-					<?php $this->Template->renderPartial('operation') ?>
+					<?php $this->renderPartial('operation') ?>
 				</div>				
 			</div>
 		</div>
 	</div>
 
 	<div class="todo-list">
-		<?php $this->Template->renderPartial('todo') ?>
+		<?php $this->renderPartial('todo') ?>
 	</div>
 </div>

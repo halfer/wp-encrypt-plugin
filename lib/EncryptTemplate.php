@@ -7,6 +7,11 @@ class EncryptTemplate
 	public function __construct($root)
 	{
 		$this->root = $root;
+
+		if (method_exists($this, 'preExecute'))
+		{
+			$this->preExecute();
+		}
 	}
 
 	public function renderTemplate($template, array $params = array())
@@ -26,5 +31,10 @@ class EncryptTemplate
 		$obj = new $class($this->root);
 		$templateVars = $obj->execute();
 		$this->renderTemplate('_' . $template, $templateVars);
+	}
+
+	protected function getInput($key)
+	{
+		return isset($_REQUEST[$key]) ? $_REQUEST[$key] : null;
 	}
 }
