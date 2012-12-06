@@ -17,11 +17,11 @@ require_once $pluginRoot . '/lib/EncDec.php';
 require_once $pluginRoot . '/components/EncryptDemoStatus.php';
 require_once $pluginRoot . '/lib/TemplateSystem.php';
 require_once $pluginRoot . '/lib/CommentsEncryptBase.php';
-require_once $pluginRoot . '/lib/AjaxHandler.php';
+require_once $pluginRoot . '/lib/CommentsEncryptAjax.php';
 
 if (!current_user_can('manage_options'))
 {
 	wp_die(__('You do not have sufficient permissions to access this page.'));
 }
 
-new AjaxHandler($pluginRoot);
+new CommentsEncryptAjax($pluginRoot);

@@ -1,6 +1,6 @@
 <?php
 
-class AjaxHandler extends CommentsEncryptBase
+class CommentsEncryptAjax extends CommentsEncryptBase
 {
 	// @todo Move these to a common class
 	const ACTION_TEST_ENCRYPT = 1;
