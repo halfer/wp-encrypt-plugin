@@ -14,9 +14,9 @@ class EncryptDemo extends EncryptTemplate
 	const COOKIE_PRIV_KEY = 'wp-encrypt-plugin_priv-key';
 
 	// Stores values in comment metadata
-	const META_ENCRYPTED = 'encdemo_encrypt';
-	const META_PUB_KEY_HASH = 'encdemo_pub_key_hash';
-	const META_VERSION = 'encdemo_version';
+	const META_ENCRYPTED = 'commentenc_encrypt';
+	const META_PUB_KEY_HASH = 'commentenc_pub_key_hash';
+	const META_VERSION = 'commentenc_version';
 
 	const KEY_BAD_KEY = 'bad_priv_key';
 	const KEY_WRONG_KEY = 'wrong_priv_key';
@@ -116,14 +116,69 @@ class EncryptDemo extends EncryptTemplate
 	 * 
 	 * @return string
 	 */
-	public function getDecryptedEmail()
+	public function getDecryptedEmail($email)
 	{
-		return 'hello@example.com';	
+		global $comment;
+
+		// Include the library we need
+		require_once $this->root . '/lib/EncDec.php';
+
+		// @todo We should do some of this stuff in a "comments action" so it isn't run multiple times
+		$email = '';
+		if ($privKey = $_COOKIE[self::COOKIE_PRIV_KEY])
+		{
+			$EncDec = new EncDec();
+			$ok = $EncDec->setKeysFromPrivateKey($privKey);
+			if (!$ok)
+			{
+				throw new Exception();
+			}
+
+			$this->decryptComment($EncDec, $comment);
+			$email = $comment->decrypted->comment_author_email;
+		}
+
+		return $email;
 	}
 
 	public function getDecryptedIP()
 	{
-		return '127.0.0.1';
+		global $comment;
+
+		// Include the library we need
+		require_once $this->root . '/lib/EncDec.php';
+
+		// @todo We should do some of this stuff in a "comments action" so it isn't run multiple times
+		$email = '';
+		if ($privKey = $_COOKIE[self::COOKIE_PRIV_KEY])
+		{
+			$EncDec = new EncDec();
+			$ok = $EncDec->setKeysFromPrivateKey($privKey);
+			if (!$ok)
+			{
+				throw new Exception();
+			}
+
+			$this->decryptComment($EncDec, $comment);
+			$email = $comment->decrypted->comment_author_IP;
+		}
+
+		return $email;
+	}
+
+	protected function decryptComment(EncDec $EncDec, stdClass $comment)
+	{
+		if (!isset($comment->decrypted))
+		{
+			$encrypted = get_comment_meta( $comment->comment_ID, self::META_ENCRYPTED, true );
+			$unpacked = base64_decode($encrypted);
+			$plain = $EncDec->decrypt($unpacked);
+			$comment->decrypted = new stdClass();
+			list(
+				$comment->decrypted->comment_author_email,
+				$comment->decrypted->comment_author_IP
+			) = explode("\n", $plain);
+		}
 	}
 
 	/**

@@ -106,7 +106,7 @@ class AjaxHandler extends EncryptTemplate
 					LEFT JOIN
 						$wpdb->commentmeta meta ON (
 							comments.comment_ID = meta.comment_id
-							AND meta.meta_key = 'encdemo_encrypt'
+							AND meta.meta_key = 'commentenc_encrypt' /* @todo use the const ref */
 						)
 					WHERE
 						/* i.e. no corresponding meta row */
@@ -143,21 +143,21 @@ class AjaxHandler extends EncryptTemplate
 			case self::ACTION_TEST_ENCRYPT:
 			case self::ACTION_FULL_ENCRYPT:
 				// Here's the encryption itself
-				$email = $this->encoder->encrypt($comment->comment_author_email);
-				$ip = $this->encoder->encrypt($comment->comment_author_IP);
+				$plain = $comment->comment_author_email . "\n" . $comment->comment_author_IP;
+				$encrypted = $this->encoder->encrypt($plain);
 
 				// Here we store the data in one metadata item
 				add_comment_meta(
 					$comment->comment_ID,
-					'encdemo_encrypt',
-					$email . "\n" . $ip,
+					'commentenc_encrypt',	// @todo use the const ref
+					base64_encode($encrypted),
 					true
 				);
 
 				// We also store a partial hash of the key
 				add_comment_meta(
 					$comment->comment_ID,
-					'encdemo_pub_key_hash',
+					'commentenc_pub_key_hash',	// @todo use the const ref
 					$this->getPublicKeyHash(),
 					true
 				);
