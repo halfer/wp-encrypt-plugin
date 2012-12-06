@@ -205,11 +205,11 @@ class EncryptDemo extends EncryptTemplate
 			array($this, 'optionsScreenHandler')
 		);
 
-		// Add an actions handler for this page
+		// Add an actions handler for the options page
 		add_action('load-' . $hookSuffix, array($this, 'optionsActionHandler'));
 
 		// Add submenu page for login facility
-		add_submenu_page(
+		$hookSuffix = add_submenu_page(
 			'edit-comments.php',
 			'Login with private key',
 			'Login',
@@ -217,6 +217,9 @@ class EncryptDemo extends EncryptTemplate
 			self::PAGE_LOGIN,
 			array($this, 'loginScreenHandler')
 		);
+
+		// Add an actions handler for the login page
+		add_action('load-' . $hookSuffix, array($this, 'loginActionHandler'));
 
 		// Add submenu page for search facility
 		add_submenu_page(
@@ -343,10 +346,25 @@ class EncryptDemo extends EncryptTemplate
 			)
 		);
 	}
+	
+	public function loginActionHandler()
+	{
+		if ($_POST)
+		{
+			$privKey = $this->getInput('login') ?
+				$this->getInput('private_key') :
+				null;
+			$this->setPrivateKeyCookie($privKey);
+			wp_redirect('edit-comments.php?page=' . self::PAGE_LOGIN);
+			exit();
+		}
+	}
 
 	public function loginScreenHandler()
 	{
-		$this->renderTemplate('login');
+		$privKey = $_COOKIE[ self::COOKIE_PRIV_KEY ];
+
+		$this->renderTemplate('login', array('privKey' => $privKey));
 	}
 
 	public function searchScreenHandler()
@@ -375,9 +393,6 @@ class EncryptDemo extends EncryptTemplate
 		// the agreement box
 		$newPrivKey = $_COOKIE[ self::COOKIE_NEW_PRIV_KEY ];
 
-		// Get the path bit of the admin URL
-		$urlPath = parse_url( admin_url(), PHP_URL_PATH );
-
 		$EncDec = new EncDec();
 
 		// Firstly, just store the private key in a cookie, so we can later ask the user if they
@@ -390,7 +405,7 @@ class EncryptDemo extends EncryptTemplate
 				self::COOKIE_NEW_PRIV_KEY,
 				$newPrivKey,
 				time() + 60 * 10,
-				$urlPath,
+				$this->getAdminPath(),
 				$_domain = null,
 				$_secure = false,
 				$_httponly = true
@@ -412,15 +427,7 @@ class EncryptDemo extends EncryptTemplate
 				{
 					update_option(self::OPTION_PUB_KEY, $EncDec->getPublicKey());
 					unset($_COOKIE[ self::COOKIE_NEW_PRIV_KEY ]);
-					setcookie(
-						self::COOKIE_PRIV_KEY,
-						$newPrivKey,
-						time() + 60 * 10,
-						$urlPath,
-						$_domain = null,
-						$_secure = false,
-						$_httponly = true
-					);
+					$this->setPrivateKeyCookie($newPrivKey);
 				}
 				else
 				{
@@ -536,5 +543,26 @@ class EncryptDemo extends EncryptTemplate
 		}
 
 		return array();
+	}
+
+	protected function setPrivateKeyCookie($privKey)
+	{
+		setcookie(
+			self::COOKIE_PRIV_KEY,
+			$privKey,
+			$privKey ? time() + 60 * 10 : time() - 60 * 10,
+			$this->getAdminPath(),
+			$_domain = null,
+			$_secure = false,
+			$_httponly = true
+		);
+	}
+
+	/**
+	 * Get the path bit of the admin URL
+	 */
+	protected function getAdminPath()
+	{
+		return parse_url( admin_url(), PHP_URL_PATH );
 	}
 }
