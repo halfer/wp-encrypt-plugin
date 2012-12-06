@@ -22,6 +22,10 @@ class EncryptDemo extends EncryptTemplate
 	const KEY_WRONG_KEY = 'wrong_priv_key';
 	const KEY_NO_SAVE_CONFIRM = 'no_key_save_confirm';
 
+	const PAGE_OPTIONS = 'options-enc';
+	const PAGE_LOGIN = 'login-enc';
+	const PAGE_SEARCH = 'search-enc';
+
 	// Used to pass template rendering values around this object
 	protected $templateVars = array();
 
@@ -197,20 +201,30 @@ class EncryptDemo extends EncryptTemplate
 			'Encrypt Demo Options',
 			'Encrypt Demo',
 			'manage_options',
-			'encdemo',
+			self::PAGE_OPTIONS,
 			array($this, 'optionsScreenHandler')
 		);
 
 		// Add an actions handler for this page
 		add_action('load-' . $hookSuffix, array($this, 'optionsActionHandler'));
 
-		// Add submenu page
+		// Add submenu page for login facility
+		add_submenu_page(
+			'edit-comments.php',
+			'Login with private key',
+			'Login',
+			'moderate_comments',
+			self::PAGE_LOGIN,
+			array($this, 'loginScreenHandler')
+		);
+
+		// Add submenu page for search facility
 		add_submenu_page(
 			'edit-comments.php',
 			'Search encrypted email/IP',
 			'Search encrypted',
 			'moderate_comments',
-			'search-enc',
+			self::PAGE_SEARCH,
 			array($this, 'searchScreenHandler')
 		);
 	}
@@ -222,7 +236,10 @@ class EncryptDemo extends EncryptTemplate
 	 */
 	public function queueCss($hook)
 	{
-		if ($hook == 'settings_page_encdemo')
+		$options = 'settings_page_' . self::PAGE_OPTIONS;
+		$login = 'comments_page_' . self::PAGE_LOGIN;
+
+		if ($hook == $options || $hook == $login)
 		{
 			// Get plugins folder relative to wp root
 			$site = site_url();
@@ -327,6 +344,11 @@ class EncryptDemo extends EncryptTemplate
 		);
 	}
 
+	public function loginScreenHandler()
+	{
+		$this->renderTemplate('login');
+	}
+
 	public function searchScreenHandler()
 	{
 		if (!current_user_can('moderate_comments'))
@@ -413,8 +435,9 @@ class EncryptDemo extends EncryptTemplate
 			}
 
 			// Redirect after saving (303 = See Other)
+			$pageKey = self::PAGE_OPTIONS;
 			wp_redirect(
-				'options-general.php?page=encdemo' . ($error ? '&error=' . $error : '') . $append,
+				'options-general.php?page=' . $pageKey . ($error ? '&error=' . $error : '') . $append,
 				303
 			);
 			exit();
@@ -457,8 +480,9 @@ class EncryptDemo extends EncryptTemplate
 			}
 
 			// Redirect after saving (303 = See Other)
+			$pageKey = self::PAGE_OPTIONS;
 			wp_redirect(
-				'options-general.php?page=encdemo' . ($error ? '&error=' . $error : ''),
+				'options-general.php?page=' . $pageKey . ($error ? '&error=' . $error : ''),
 				303
 			);
 			exit();
@@ -473,7 +497,7 @@ class EncryptDemo extends EncryptTemplate
 		delete_option(self::OPTION_PUB_KEY_HASH);
 
 		// Redirect after saving (303 = See Other)
-		wp_redirect('options-general.php?page=encdemo', 303);
+		wp_redirect('options-general.php?page=' . self::PAGE_OPTIONS, 303);
 		exit();
 	}
 
@@ -486,6 +510,8 @@ class EncryptDemo extends EncryptTemplate
 			require_once $this->root . '/lib/EncDec.php';
 
 			$privKey = $this->getInput('private_key');
+			
+			$pageKey = self::PAGE_OPTIONS;
 
 			$EncDec = new EncDec();
 			$ok = $EncDec->setKeysFromPrivateKey($privKey);
@@ -496,14 +522,14 @@ class EncryptDemo extends EncryptTemplate
 				update_option(self::OPTION_PUB_KEY_HASH, $EncDec->getPublicKeyLongHash());
 
 				wp_redirect(
-					'options-general.php?page=encdemo&imported_ok=1',
+					"options-general.php?page={$pageKey}&imported_ok=1",
 					303
 				);
 			}
 			else
 			{
 				wp_redirect(
-					'options-general.php?page=encdemo&import_keys=1&error=' . self::KEY_BAD_KEY,
+					"options-general.php?page={$pageKey}&import_keys=1&error=" . self::KEY_BAD_KEY,
 					303
 				);
 			}
