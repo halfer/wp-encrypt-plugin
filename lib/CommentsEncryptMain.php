@@ -219,7 +219,6 @@ class CommentsEncryptMain extends CommentsEncryptBase
 		//global $comment;
 		//echo get_comment_meta( $comment->comment_ID, 'town', true );
 
-		// @todo Add a proper link to this
 		$actions['ip_ban'] = '<a href="#">Ban IP X</a>';
 
 		return $actions;
@@ -411,8 +410,6 @@ class CommentsEncryptMain extends CommentsEncryptBase
 	/**
 	 * An action method to handle the generation of pub/priv keys
 	 * 
-	 * @todo Fix up the cookie relative http paths, get this from wp
-	 * 
 	 * @return array Variables to pass to the template
 	 */
 	protected function generateNewKeys()
@@ -457,6 +454,7 @@ class CommentsEncryptMain extends CommentsEncryptBase
 				if ($ok)
 				{
 					update_option(self::OPTION_PUB_KEY, $EncDec->getPublicKey());
+					// Set an old cookie to trigger browser delete mechanism, rather than unsetting it
 					unset($_COOKIE[ self::COOKIE_NEW_PRIV_KEY ]);
 					$this->setPrivateKeyCookie($newPrivKey);
 				}
