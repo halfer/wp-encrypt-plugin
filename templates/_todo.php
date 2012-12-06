@@ -17,6 +17,12 @@
 			<li>Make the condition of multiple pub keys more visible as a warning (at least until
 				multiple keys are supported)
 		</ol>
+		<li>Show encryption progress</li>
+		<ol>
+			<li>When encrypting, paint a barchart of progress</li>
+			<li>Add an ETA time</li>
+			<li>Add spinner</li>
+		</ol>
 		<li><s>Option to import priv key manually</s></li>
 		<ol>
 			<li>When importing a key, display warning if the public key short hash is not found in
@@ -28,7 +34,10 @@
 			<li>Child link in admin bar to clear decryption cookie manually</li>
 		</ol>
 		<li>Capture logout event so we can clear all our custom cookies</li>
-		<li>Private key login box, off search menu</li>
+		<li><s>Private key login box, off search menu</s></li>
+		<ol>
+			<li>Validate private key against pub key on record</li>
+		</ol>
 	</ol>
 </div>
 <div style="float: left; width: auto;">
@@ -36,11 +45,13 @@
 	<ol>
 		<li>Help blocks for options and search screens</li>
 		<li>Translations</li>
+		<li>Use Wordpress code conventions</li>
 		<li>Allow user to choose number of bits (<a href="http://php.net/manual/en/function.openssl-pkey-new.php"
 			>use configargs</a>)</li>
-		<li>Support multiple private keys?</li>
 		<li>Collapsible blocks in options screen</li>
 		<li>Warning if large numbers of comments remain unencrypted/test-encrypted for long periods</li>
+		<li>Support multiple private keys?</li>
 		<li>Speed tests to see if phpsec lib is faster/slower than openssl extension</li>
+		<li>Offer template system as generic solution for WP plugins</li>
 	</ol>
 </div>
