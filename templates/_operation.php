@@ -59,8 +59,7 @@
 		if (!callbackBusy) {
 			callbackBusy = true;
 			jQuery.post(
-				/* @todo Yikes at hardwired path, fix this! */
-				'/wp/wp-content/plugins/wp-encrypt-plugin/ajax.php',
+				'<?php echo plugin_dir_url('') ?>wp-encrypt-plugin/ajax.php',
 				{},
 				ajaxSuccessCallback,
 				'json'

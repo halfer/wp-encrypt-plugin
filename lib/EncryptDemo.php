@@ -142,8 +142,6 @@ class EncryptDemo extends EncryptTemplate
 	/**
 	 * Renders an encryption status for the specified comment
 	 * 
-	 * @todo Remove hardwired path, get plugin http path from wp
-	 * 
 	 * @param string $column
 	 * @param integer $commentId
 	 */
@@ -153,20 +151,21 @@ class EncryptDemo extends EncryptTemplate
 			$comment = get_comment($commentId);
 			$metaEncrypted = get_comment_meta($commentId, self::META_ENCRYPTED);
 
+			$uri = plugins_url() . '/' . self::PATH_PLUGIN_NAME;
 			if ($comment->comment_author_email && $comment->comment_author_IP)
 			{
 				if ($metaEncrypted)
 				{
-					echo '<img src="/wp/wp-content/plugins/' . self::PATH_PLUGIN_NAME . '/lock.png" /> Test';
+					echo '<img src="' . $uri . '/lock.png" /> Test';
 				}
 				else
 				{
-					echo '<img src="/wp/wp-content/plugins/' . self::PATH_PLUGIN_NAME . '/lock.png" /> No';					
+					echo '<img src="' . $uri . '/lock.png" /> No';					
 				}
 			}
 			else
 			{
-				echo '<img src="/wp/wp-content/plugins/' . self::PATH_PLUGIN_NAME . '/lock.png" /> Yes';	
+				echo '<img src="' . $uri . '/lock.png" /> Yes';	
 			}
 		}
 	}
@@ -219,18 +218,19 @@ class EncryptDemo extends EncryptTemplate
 	/**
 	 * Registers CSS styles for our pages only
 	 * 
-	 * @todo Remove hardwired path, get plugin http path from wp
-	 * 
 	 * @param string $hook
 	 */
 	public function queueCss($hook)
 	{
 		if ($hook == 'settings_page_encdemo')
 		{
-			// @todo Fix the absolute pathname here
+			// Get plugins folder relative to wp root
+			$site = site_url();
+			$relativePath = substr(plugins_url(), strlen($site));
+
 			wp_register_style(
 				'encdemo_css',
-				'/wp-content/plugins/' . self::PATH_PLUGIN_NAME . '/styles/main.css'
+				$relativePath . '/' . self::PATH_PLUGIN_NAME . '/styles/main.css'
 			);
 			wp_enqueue_style('encdemo_css');
 		}
@@ -353,6 +353,9 @@ class EncryptDemo extends EncryptTemplate
 		// the agreement box
 		$newPrivKey = $_COOKIE[ self::COOKIE_NEW_PRIV_KEY ];
 
+		// Get the path bit of the admin URL
+		$urlPath = parse_url( admin_url(), PHP_URL_PATH );
+
 		$EncDec = new EncDec();
 
 		// Firstly, just store the private key in a cookie, so we can later ask the user if they
@@ -365,7 +368,7 @@ class EncryptDemo extends EncryptTemplate
 				self::COOKIE_NEW_PRIV_KEY,
 				$newPrivKey,
 				time() + 60 * 10,
-				$_path = '/wp/wp-admin',
+				$urlPath,
 				$_domain = null,
 				$_secure = false,
 				$_httponly = true
@@ -391,7 +394,7 @@ class EncryptDemo extends EncryptTemplate
 						self::COOKIE_PRIV_KEY,
 						$newPrivKey,
 						time() + 60 * 10,
-						$_path = '/wp/wp-admin',
+						$urlPath,
 						$_domain = null,
 						$_secure = false,
 						$_httponly = true
