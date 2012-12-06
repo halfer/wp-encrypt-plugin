@@ -50,7 +50,7 @@
 	<?php if ($chooseImport): ?>
 		<p>Paste in your existing private key here. This is a suitable option if some of your comments are
 		already encrypted, so that you don't need more than one key for their decryption.</p>
-		<form method="post" action="options-general.php?page=<?php echo EncryptDemo::PAGE_OPTIONS ?>&import_keys=1">
+		<form method="post" action="options-general.php?page=<?php echo CommentsEncryptBase::PAGE_OPTIONS ?>&import_keys=1">
 			<textarea name="private_key" rows="10" cols="80"></textarea>
 			<div>
 				<input type="submit" name="import_key_button" value="Import private key" />
@@ -80,7 +80,7 @@
 		<p>If you're starting from scratch, generate new keys. However if you've an existing private
 			key and wish to import it, then you can do so here.</p>
 		<form method="get">
-			<input type="hidden" name="page" value="<?php echo EncryptDemo::PAGE_OPTIONS ?>" />
+			<input type="hidden" name="page" value="<?php echo CommentsEncryptBase::PAGE_OPTIONS ?>" />
 			<input type="submit" name="gen_keys" value="Generate new keys" />
 			<input type="submit" name="import_keys" value="Import private key" />
 		</form>

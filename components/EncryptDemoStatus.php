@@ -40,7 +40,7 @@ class EncryptDemoStatus
 				FROM
 					$wpdb->commentmeta meta
 				WHERE
-					meta.meta_key = '" . EncryptDemo::META_PUB_KEY_HASH . "'
+					meta.meta_key = '" . CommentsEncryptMain::META_PUB_KEY_HASH . "'
 				GROUP BY
 					meta.meta_value
 			) key_list
@@ -64,7 +64,7 @@ class EncryptDemoStatus
 				$wpdb->comments comments
 			INNER JOIN $wpdb->commentmeta meta ON (comments.comment_ID = meta.comment_id)
 			WHERE
-				meta.meta_key = '" . EncryptDemo::META_ENCRYPTED . "'
+				meta.meta_key = '" . CommentsEncryptMain::META_ENCRYPTED . "'
 				AND $not (
 					comments.comment_author_email = ''
 					AND comments.comment_author_IP = ''
