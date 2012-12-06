@@ -106,7 +106,7 @@ class EncryptDemo extends EncryptTemplate
 			array(
 				'id' => 'encdemo_key_status',
 				'title' => $privKeySet? 'Private key set' : 'Private key unknown',
-				'href' => false,
+				'href' => 'edit-comments.php?page=' . self::PAGE_LOGIN,
 			)
 		);
 	}
