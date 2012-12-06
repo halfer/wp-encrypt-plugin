@@ -5,6 +5,9 @@ class CommentsEncryptMain extends CommentsEncryptBase
 	// Used to pass template rendering values around this object
 	protected $templateVars = array();
 
+	// Used to access the same instance in various places on the comments admin screen
+	protected $encoder;
+
 	public function preExecute()
 	{
 		// Initialisation
@@ -92,25 +95,15 @@ class CommentsEncryptMain extends CommentsEncryptBase
 	 * 
 	 * @return string
 	 */
-	public function getDecryptedEmail($email)
+	public function getDecryptedEmail()
 	{
 		global $comment;
 
-		// Include the library we need
-		require_once $this->root . '/lib/EncDec.php';
-
-		// @todo We should do some of this stuff in a "comments action" so it isn't run multiple times
+		// Only decrypt if we actually have a cookie key
 		$email = '';
 		if ($privKey = $_COOKIE[self::COOKIE_PRIV_KEY])
 		{
-			$EncDec = new EncDec();
-			$ok = $EncDec->setKeysFromPrivateKey($privKey);
-			if (!$ok)
-			{
-				throw new Exception();
-			}
-
-			$this->decryptComment($EncDec, $comment);
+			$this->decryptComment($this->encoder, $comment);
 			$email = $comment->decrypted->comment_author_email;
 		}
 
@@ -121,25 +114,15 @@ class CommentsEncryptMain extends CommentsEncryptBase
 	{
 		global $comment;
 
-		// Include the library we need
-		require_once $this->root . '/lib/EncDec.php';
-
-		// @todo We should do some of this stuff in a "comments action" so it isn't run multiple times
-		$email = '';
+		// Only decrypt if we actually have a cookie key
+		$ip = '';
 		if ($privKey = $_COOKIE[self::COOKIE_PRIV_KEY])
 		{
-			$EncDec = new EncDec();
-			$ok = $EncDec->setKeysFromPrivateKey($privKey);
-			if (!$ok)
-			{
-				throw new Exception();
-			}
-
-			$this->decryptComment($EncDec, $comment);
-			$email = $comment->decrypted->comment_author_IP;
+			$this->decryptComment($this->encoder, $comment);
+			$ip = $comment->decrypted->comment_author_IP;
 		}
 
-		return $email;
+		return $ip;
 	}
 
 	protected function decryptComment(EncDec $EncDec, stdClass $comment)
@@ -226,6 +209,11 @@ class CommentsEncryptMain extends CommentsEncryptBase
 
 	public function screensHandler()
 	{
+		// This does some variable initialisation for the admin screen decryption. (I'm using admin_head here
+		// as it's the best thing I could think of where get_current_screen() actually works; admin_init is
+		// too early). 
+		add_action('admin_head', array($this, 'commentsActionHandler'));
+
 		// Add settings menu item
 		$hookSuffix = add_options_page(
 			'Comment Encryption Options',
@@ -283,6 +271,23 @@ class CommentsEncryptMain extends CommentsEncryptBase
 				$relativePath . '/' . self::PATH_PLUGIN_NAME . '/styles/main.css'
 			);
 			wp_enqueue_style('encdemo_css');
+		}
+	}
+
+	public function commentsActionHandler()
+	{
+		$screen = get_current_screen();
+		if ($screen->base == 'edit-comments')
+		{
+			// In the comments screen, we need to prepare for decryption
+			require_once $this->root . '/lib/EncDec.php';
+
+			if ($privKey = $_COOKIE[self::COOKIE_PRIV_KEY])
+			{
+				$this->encoder = new EncDec();
+				// @todo Do we need to handle an ok = false here?
+				$ok = $this->encoder->setKeysFromPrivateKey($privKey);
+			}
 		}
 	}
 
