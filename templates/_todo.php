@@ -27,7 +27,6 @@
 			<li>Use open/closed padlock icon</li>
 			<li>Child link in admin bar to clear decryption cookie manually</li>
 		</ol>
-		<li>Only add in screens if plugin is enabled!</li>
 		<li>Capture logout event so we can clear all our custom cookies</li>
 		<li>Private key login box, off search menu</li>
 	</ol>
@@ -43,6 +42,5 @@
 		<li>Collapsible blocks in options screen</li>
 		<li>Warning if large numbers of comments remain unencrypted/test-encrypted for long periods</li>
 		<li>Speed tests to see if phpsec lib is faster/slower than openssl extension</li>
-		<li>Donation button?</li>
 	</ol>
 </div>
