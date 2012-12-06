@@ -85,8 +85,6 @@ class AjaxHandler extends CommentsEncryptBase
 	 * or will get comments that are either unencrypted and test-encrypted if we're
 	 * wanting full encryption etc.
 	 * 
-	 * @todo Switch hardwired value for meta_key to a class constant
-	 * 
 	 * @param string $action
 	 */
 	protected function getComments($action, $limit = 400)
@@ -106,7 +104,7 @@ class AjaxHandler extends CommentsEncryptBase
 					LEFT JOIN
 						$wpdb->commentmeta meta ON (
 							comments.comment_ID = meta.comment_id
-							AND meta.meta_key = 'commentenc_encrypt' /* @todo use the const ref */
+							AND meta.meta_key = '" . self::META_ENCRYPTED . "'
 						)
 					WHERE
 						/* i.e. no corresponding meta row */
@@ -149,7 +147,7 @@ class AjaxHandler extends CommentsEncryptBase
 				// Here we store the data in one metadata item
 				add_comment_meta(
 					$comment->comment_ID,
-					'commentenc_encrypt',	// @todo use the const ref
+					self::META_ENCRYPTED,
 					base64_encode($encrypted),
 					true
 				);
@@ -157,7 +155,7 @@ class AjaxHandler extends CommentsEncryptBase
 				// We also store a partial hash of the key
 				add_comment_meta(
 					$comment->comment_ID,
-					'commentenc_pub_key_hash',	// @todo use the const ref
+					self::META_PUB_KEY_HASH,
 					$this->getPublicKeyHash(),
 					true
 				);
