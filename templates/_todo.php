@@ -17,16 +17,20 @@
 			<li>Make the condition of multiple pub keys more visible as a warning (at least until
 				multiple keys are supported)
 		</ol>
+		<li>Can we still use Gravatars even though we intend to empty the email field? Look at the
+			"get_avatar" filter</li>
 		<li>Show encryption progress</li>
 		<ol>
 			<li>When encrypting, paint a barchart of progress</li>
 			<li>Add an ETA time</li>
 			<li>Add spinner</li>
 		</ol>
+		<li>Only try decrypting comments where there is a short hash match</li>
 		<li><s>Option to import priv key manually</s></li>
 		<ol>
 			<li>When importing a key, display warning if the public key short hash is not found in
 				existing comment meta data</li>
+			<li>Add warning in comments browser where the current priv key is wrong</li>
 		</ol>
 		<li><s>Admin banner to say when private cookie is detected</s></li>
 		<ol>
