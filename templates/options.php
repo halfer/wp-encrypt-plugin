@@ -1,5 +1,5 @@
 <div id="encrypt-demo-options" class="wrap wp-comments-encrypt-page">
-	<h2>Encrypt options</h2>
+	<h2>Comment Encryption Options</h2>
 
 	<div class="metabox-holder">
 		<div class="meta-box-sortabless">

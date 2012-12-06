@@ -198,8 +198,8 @@ class EncryptDemo extends EncryptTemplate
 	{
 		// Add settings menu item
 		$hookSuffix = add_options_page(
-			'Encrypt Demo Options',
-			'Encrypt Demo',
+			'Comment Encryption Options',
+			'Comment Encryption',
 			'manage_options',
 			self::PAGE_OPTIONS,
 			array($this, 'optionsScreenHandler')
