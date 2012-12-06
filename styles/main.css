@@ -1,8 +1,5 @@
-#encrypt-demo-search {
-	border: 1px dotted red;
-}
-
-#encrypt-demo-options p {
+/* @todo Not specific enough, this affects warning boxes that appear on all admin pages, from other plugins */
+.wp-comments-encrypt-page p {
 	max-width: 1000px;
 }
 
