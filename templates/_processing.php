@@ -6,7 +6,7 @@
 
 <p>
 	Action:
-	<select>
+	<select name="action_code" id="action_code">
 		<optgroup label="Encryption actions">
 			<option value="<?php echo CommentsEncryptBase::ACTION_TEST_ENCRYPT ?>">Test encrypt</option>
 			<option value="<?php echo CommentsEncryptBase::ACTION_FULL_ENCRYPT ?>">Fully encrypt</option>
@@ -63,7 +63,9 @@
 			callbackBusy = true;
 			jQuery.post(
 				'<?php echo plugin_dir_url('') ?>wp-encrypt-plugin/ajax.php',
-				{},
+				{
+					'action_code': jQuery('#action_code').val()
+				},
 				ajaxSuccessCallback,
 				'json'
 			);

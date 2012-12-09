@@ -6,28 +6,29 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 
 	public function preExecute()
 	{
-		// Validate the public key
-		$pubKey = get_option('encdemo_pub_key');
-		$this->checkPublicKey();
-
-		// Get the action from settings store, and validate it (nothing to do if it is off)
+		// Get the action from the menu, only do something if this is a valid choice
 		$action = $this->getAction();
-		$this->validateAction($action);
-
-		// Get speed setting
-		$delay = $this->getDelaySetting();
-
-		// Set up encryption class
-		// @todo Switch the option string to a constant from another class
-		$this->encoder = new EncDec();
-		$this->encoder->setPublicKey($pubKey);
-
-		// Process comments
-		$comments = $this->getComments($action);
-		foreach($comments as $comment)
+		if ($action)
 		{
-			$this->doAction($action, $comment);
-			$this->beKindToTheCpu($delay);
+			// Validate the public key
+			$pubKey = get_option('encdemo_pub_key');
+			$this->checkPublicKey();
+
+			// Get speed setting
+			$delay = $this->getDelaySetting();
+
+			// Set up encryption class
+			// @todo Switch the option string to a constant from another class
+			$this->encoder = new EncDec();
+			$this->encoder->setPublicKey($pubKey);
+
+			// Process comments
+			$comments = $this->getComments($action);
+			foreach($comments as $comment)
+			{
+				$this->doAction($action, $comment);
+				$this->beKindToTheCpu($delay);
+			}
 		}
 
 		$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
@@ -51,15 +52,17 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 
 	protected function getAction()
 	{
-		return self::ACTION_TEST_ENCRYPT;
-	}
+		$action = $this->getInput('action_code');
+		$actionList = array(
+			self::ACTION_TEST_ENCRYPT,
+			self::ACTION_FULL_ENCRYPT,
+			self::ACTION_FULL_DECRYPT,
+			self::ACTION_ADD_HASHES,
+			self::ACTION_REMOVE_HASHES
+		);
+		$ok = array_search($action, $actionList) !== false;
 
-	/**
-	 * Exits with an error if mode = off
-	 */
-	protected function validateAction()
-	{
-		// Does nothing at the moment
+		return $ok ? $action : null;
 	}
 
 	/**
