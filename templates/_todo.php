@@ -17,8 +17,14 @@
 			<li>Make the condition of multiple pub keys more visible as a warning (at least until
 				multiple keys are supported)
 		</ol>
-		<li>Can we still use Gravatars even though we intend to empty the email field? Look at the
-			"get_avatar" filter</li>
+		<li><s>Can we still use Gravatars even though we intend to empty the email field? Look at the
+			"get_avatar" filter</s></li>
+		<ol>
+			<li>Background task to add Gravatar hashes to all comments</li>
+			<li>Background task to remove Gravatar hashes to all comments</li>
+			<li>Display has-hash property in comment browser, use Gravatar icon</li>
+			<li><s>Add hash count to stats box</s></li>
+		</ol>
 		<li>Show encryption progress</li>
 		<ol>
 			<li>When encrypting, paint a barchart of progress</li>
@@ -42,6 +48,8 @@
 		<ol>
 			<li>Validate private key against pub key on record</li>
 		</ol>
+		<li>Try deleting private key cookie whilst a background AJAX op is running; ensure it
+			stops and reports error gracefully</li>
 	</ol>
 </div>
 <div style="float: left; width: auto;">
