@@ -25,4 +25,19 @@
 	</select>
 	*/ ?>
 
+	<p>Choose whether to save email hashes, which are used to generate Gravatars. Whilst an email address
+	cannot be reversed-engineered from a hash, it may provide a search-string to aid searching for a
+	commenter's identity elsewhere, if your security opponent is sufficiently determined. In most cases
+	however, if your theme uses Gravatars, it is recommended to leave this enabled.</p>
+
+	<label>
+		<input type="checkbox" name="save_avatar_hashes" value="1"
+			<?php echo get_option(CommentsEncryptMain::OPTION_STORE_AVATAR_HASHES) ? 'checked="checked"' : '' ?>
+		/>
+		Store avatar hashes
+	</label>
+
+	<p>
+		<input type="submit" name="save_settings" value="Save settings" />
+	</p>
 </form>

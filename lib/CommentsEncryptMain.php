@@ -332,6 +332,9 @@ class CommentsEncryptMain extends CommentsEncryptBase
 			case !$isTested:
 				$templateVars = $this->testPrivateKey();
 				break;
+			case $this->getInput('save_settings'):
+				$templateVars = $this->saveSettings();
+				break;
 			default:
 				$templateVars = array();
 		}
@@ -581,6 +584,13 @@ class CommentsEncryptMain extends CommentsEncryptBase
 		}
 
 		return array();
+	}
+
+	public function saveSettings()
+	{
+		$saveHashes = (bool) $this->getInput('save_avatar_hashes');
+		update_option(self::OPTION_STORE_AVATAR_HASHES, $saveHashes);
+		wp_redirect('options-general.php?page=' . self::PAGE_OPTIONS, 303);
 	}
 
 	protected function setPrivateKeyCookie($privKey)
