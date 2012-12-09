@@ -10,6 +10,10 @@ class CommentsEncryptMain extends CommentsEncryptBase
 
 	public function preExecute()
 	{
+		// Set up init object, removes some clutter from the main class
+		require_once $this->root . '/lib/CommentsEncryptInit.php';
+		new CommentsEncryptInit($this);
+
 		// Initialisation
 		$this->initDecryptedEmail();
 		$this->initDecryptedIP();

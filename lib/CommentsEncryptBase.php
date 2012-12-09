@@ -8,6 +8,7 @@ class CommentsEncryptBase extends TemplateSystem
 	// Stores values in WP options
 	const OPTION_PUB_KEY = 'encdemo_pub_key';
 	const OPTION_PUB_KEY_HASH = 'encdemo_pub_key_hash';
+	const OPTION_STORE_AVATAR_HASHES = 'commentsencrypt_storeavatar';
 
 	// Stores values in user cookies
 	const COOKIE_NEW_PRIV_KEY = 'wp-encrypt-plugin_new-priv-key';
