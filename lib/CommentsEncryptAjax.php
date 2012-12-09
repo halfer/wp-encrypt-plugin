@@ -2,12 +2,6 @@
 
 class CommentsEncryptAjax extends CommentsEncryptBase
 {
-	// @todo Move these to a common class
-	const ACTION_TEST_ENCRYPT = 1;
-	const ACTION_FULL_ENCRYPT = 2;
-	const ACTION_TEST_DECRYPT = 3;
-	const ACTION_FULL_DECRYPT = 4;
-
 	protected $encoder;
 
 	public function preExecute()

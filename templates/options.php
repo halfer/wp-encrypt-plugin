@@ -39,7 +39,7 @@
 			</div>
 
 			<div class="postbox">
-				<h3 class="hndle">Operation mode</h3>
+				<h3 class="hndle">Processing</h3>
 				<div class="inside">
 					<?php $this->renderPartial('operation') ?>
 				</div>				

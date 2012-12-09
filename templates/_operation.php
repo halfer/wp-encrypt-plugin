@@ -1,23 +1,26 @@
-<!--
 <p>
-	The first operation setting is whether to encrypt comments as users enter them. This will minimise the
-	length of time unencrypted comment data will be stored in the database. It is recommended to leave
-	this on.
+	Here, you can do various things to existing comments in the database, such as encrypting, or making
+	them compatible with Gravatars. Select the operation you require, and click the button! Be sure to
+	leave this page open so it can do its stuff.
 </p>
 
-<label>
-	<input type="checkbox" name="real_time" value="1" />
-	Real time encryption
-</label>
--->
-
 <p>
-	Here, you can encrypt your old comments. Just re-confirm all your other settings, and click the button!
-	Be sure to leave this page open so it can do its stuff.
+	Action:
+	<select>
+		<optgroup label="Encryption actions">
+			<option value="<?php echo CommentsEncryptBase::ACTION_TEST_ENCRYPT ?>">Test encrypt</option>
+			<option value="<?php echo CommentsEncryptBase::ACTION_FULL_ENCRYPT ?>">Fully encrypt</option>
+			<option value="<?php echo CommentsEncryptBase::ACTION_FULL_DECRYPT ?>">Fully decrypt</option>
+		</optgroup>
+		<optgroup label="Gravatar hash actions">
+			<option value="<?php echo CommentsEncryptBase::ACTION_ADD_HASHES ?>">Add hashes</option>
+			<option value="<?php echo CommentsEncryptBase::ACTION_REMOVE_HASHES ?>">Remove hashes</option>
+		</optgroup>
+	</select>
 </p>
 
-<input type="submit" value="Start encryption" id="button_start_encryption" />
-<input type="submit" value="Stop encryption" id="button_stop_encryption"
+<input type="submit" value="Start" id="button_start_operation" />
+<input type="submit" value="Stop" id="button_stop_operation"
 	   style="display: none;" />
 
 <script type="text/javascript">
@@ -26,9 +29,9 @@
 	var timerHandle = null;
 
 	jQuery(document).ready(function() {
-		jQuery('#button_start_encryption').click(function() {
-			jQuery('#button_start_encryption').hide();
-			jQuery('#button_stop_encryption').show();
+		jQuery('#button_start_operation').click(function() {
+			jQuery(this).hide();
+			jQuery('#button_stop_operation').show();
 			encryptionRunning = true;
 			callbackBusy = false;
 
@@ -36,7 +39,7 @@
 
 			return false;
 		});
-		jQuery('#button_stop_encryption').click(function() {
+		jQuery('#button_stop_operation').click(function() {
 			stopDecryption();
 
 			return false;
@@ -44,8 +47,8 @@
 	});
 
 	function stopDecryption() {
-		jQuery('#button_start_encryption').show();
-		jQuery('#button_stop_encryption').hide();
+		jQuery('#button_start_operation').show();
+		jQuery('#button_stop_operation').hide();
 
 		clearTimeout(timerHandle);
 		encryptionRunning = false;

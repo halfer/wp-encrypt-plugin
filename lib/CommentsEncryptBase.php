@@ -26,5 +26,13 @@ class CommentsEncryptBase extends TemplateSystem
 
 	const PAGE_OPTIONS = 'options-enc';
 	const PAGE_LOGIN = 'login-enc';
-	const PAGE_SEARCH = 'search-enc';	
+	const PAGE_SEARCH = 'search-enc';
+
+	// Ajax operation codes
+	const ACTION_TEST_ENCRYPT = 1;
+	const ACTION_FULL_ENCRYPT = 2;
+	const ACTION_TEST_DECRYPT = 3; // Not implemented
+	const ACTION_FULL_DECRYPT = 4;
+	const ACTION_ADD_HASHES = 5;
+	const ACTION_REMOVE_HASHES = 6;
 }
