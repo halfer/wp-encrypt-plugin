@@ -21,7 +21,7 @@ class EncryptDemoStatus
 		// Count all comments
 		$sql = "SELECT COUNT(*) FROM $wpdb->comments comments";
 		$commentCount = $wpdb->get_var($wpdb->prepare($sql));
-		
+
 		// Count all comments that are test-encrypted
 		$sql = $this->sqlMeta($wpdb, 'NOT');
 		$testCommentCount = $wpdb->get_var($wpdb->prepare($sql));
@@ -29,7 +29,19 @@ class EncryptDemoStatus
 		// Count all comments that are fully encrypted
 		$sql = $this->sqlMeta($wpdb, '');
 		$encryptedCommentCount = $wpdb->get_var($wpdb->prepare($sql));
-		
+
+		// Count the number of hashes
+		$sql = "
+			SELECT
+				COUNT(*)
+			FROM
+				$wpdb->comments comments
+				INNER JOIN $wpdb->commentmeta meta ON (comments.comment_ID = meta.comment_id)
+				WHERE
+					meta.meta_key = '" . CommentsEncryptMain::META_AVATAR_HASH . "'
+		";
+		$hashCount = $wpdb->get_var($wpdb->prepare($sql));
+
 		// Count the number of different key hashes (in general we want this to be one)
 		$sql = "
 			SELECT
@@ -51,6 +63,7 @@ class EncryptDemoStatus
 			'commentCount' => $commentCount,
 			'testCommentCount' => $testCommentCount,
 			'encryptedCommentCount' => $encryptedCommentCount,
+			'hashCount' => $hashCount,
 			'encryptionKeyCount' => $encryptionKeyCount,
 		);
 	}
