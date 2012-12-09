@@ -41,7 +41,7 @@
 			<div class="postbox">
 				<h3 class="hndle">Processing</h3>
 				<div class="inside">
-					<?php $this->renderPartial('operation') ?>
+					<?php $this->renderPartial('processing') ?>
 				</div>				
 			</div>
 		</div>
