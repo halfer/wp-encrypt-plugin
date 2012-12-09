@@ -50,5 +50,10 @@ if (!class_exists('TemplateSystem'))
 		{
 			return isset($_REQUEST[$key]) ? $_REQUEST[$key] : null;
 		}
+
+		public function getRoot()
+		{
+			return $this->root;
+		}
 	}
 }
