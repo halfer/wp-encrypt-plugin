@@ -23,11 +23,11 @@ class EncryptDemoStatus extends TemplateComponentBase
 		$commentCount = $wpdb->get_var($wpdb->prepare($sql));
 
 		// Count all comments that are test-encrypted
-		$sql = $this->sqlMeta($wpdb, 'NOT');
+		$sql = $this->getController()->getSqlForEncryptedComments($wpdb, false);
 		$testCommentCount = $wpdb->get_var($wpdb->prepare($sql));
 
 		// Count all comments that are fully encrypted
-		$sql = $this->sqlMeta($wpdb, '');
+		$sql = $this->getController()->getSqlForEncryptedComments($wpdb, true);
 		$encryptedCommentCount = $wpdb->get_var($wpdb->prepare($sql));
 
 		// Count the number of hashes
@@ -66,22 +66,5 @@ class EncryptDemoStatus extends TemplateComponentBase
 			'hashCount' => $hashCount,
 			'encryptionKeyCount' => $encryptionKeyCount,
 		);
-	}
-
-	protected function sqlMeta(wpdb $wpdb, $not)
-	{
-		return "
-			SELECT
-				COUNT(*)
-			FROM
-				$wpdb->comments comments
-			INNER JOIN $wpdb->commentmeta meta ON (comments.comment_ID = meta.comment_id)
-			WHERE
-				meta.meta_key = '" . CommentsEncryptMain::META_ENCRYPTED . "'
-				AND $not (
-					comments.comment_author_email = ''
-					AND comments.comment_author_IP = ''
-				)
-		";
 	}
 }

@@ -35,4 +35,30 @@ class CommentsEncryptBase extends TemplateSystem
 	const ACTION_FULL_DECRYPT = 4;
 	const ACTION_ADD_HASHES = 5;
 	const ACTION_REMOVE_HASHES = 6;
+
+	/**
+	 * Returns the SQL for counting fully or test encrypted comments
+	 * 
+	 * @param wpdb $wpdb
+	 * @param boolean $isFullyEncrypted
+	 * @return string
+	 */
+	public function getSqlForEncryptedComments(wpdb $wpdb, $isFullyEncrypted)
+	{
+		$notSql = $isFullyEncrypted ? '' : 'NOT';
+
+		return "
+			SELECT
+				COUNT(*)
+			FROM
+				$wpdb->comments comments
+			INNER JOIN $wpdb->commentmeta meta ON (comments.comment_ID = meta.comment_id)
+			WHERE
+				meta.meta_key = '" . self::META_ENCRYPTED . "'
+				AND $notSql (
+					comments.comment_author_email = ''
+					AND comments.comment_author_IP = ''
+				)
+		";
+	}
 }

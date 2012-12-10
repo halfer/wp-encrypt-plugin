@@ -16,6 +16,11 @@ if (!class_exists('TemplateComponentBase'))
 
 		abstract public function execute();
 
+		/**
+		 * Gets the currently running controller
+		 * 
+		 * @return TemplateSystem
+		 */
 		public function getController()
 		{
 			return $this->controller;
