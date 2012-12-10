@@ -13,7 +13,7 @@ License: GPL2
 $root = dirname(__FILE__);
 
 // Load template helper
-require_once $root . '/lib/TemplateSystem.php';
+require_once $root . '/vendor/TemplateSystem/TemplateSystem.php';
 require_once $root . '/lib/CommentsEncryptBase.php';
 require_once $root . '/lib/CommentsEncryptMain.php';
 

@@ -15,7 +15,7 @@ require_once $loader;
 $pluginRoot = dirname(__FILE__);
 require_once $pluginRoot . '/lib/EncDec.php';
 require_once $pluginRoot . '/components/EncryptDemoStatus.php';
-require_once $pluginRoot . '/lib/TemplateSystem.php';
+require_once $pluginRoot . '/vendor/TemplateSystem/TemplateSystem.php';
 require_once $pluginRoot . '/lib/CommentsEncryptBase.php';
 require_once $pluginRoot . '/lib/CommentsEncryptAjax.php';
 
