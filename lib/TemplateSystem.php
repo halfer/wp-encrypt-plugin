@@ -30,8 +30,17 @@ if (!class_exists('TemplateSystem'))
 
 		public function renderComponent($class, $template)
 		{
+			// Load component base and specific component classes
+			require_once $this->root . '/lib/TemplateComponentBase.php';
 			require_once $this->root . '/components/' . $class . '.php';
-			$obj = new $class($this->root);
+
+			// Ensure the new thing extends the base correctly
+			$obj = new $class($this, $this->root);
+			if (!($obj instanceof TemplateComponentBase))
+			{
+				throw new Exception('Components must extend TemplateComponentBase');
+			}
+
 			$templateVars = $obj->execute();
 			$this->renderTemplate('_' . $template, $templateVars);
 		}

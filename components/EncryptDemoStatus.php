@@ -1,6 +1,6 @@
 <?php
 
-class EncryptDemoStatus
+class EncryptDemoStatus extends TemplateComponentBase
 {
 	/**
 	 * Do some db queries for status block
