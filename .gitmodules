@@ -1,0 +1,3 @@
+[submodule "vendor/TemplateSystem"]
+	path = vendor/TemplateSystem
+	url = https://github.com/halfer/TemplateSystem.git
