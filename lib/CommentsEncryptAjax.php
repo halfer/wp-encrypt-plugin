@@ -82,7 +82,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 * or will get comments that are either unencrypted and test-encrypted if we're
 	 * wanting full encryption etc.
 	 * 
-	 * @param string $action
+	 * @param integer $action
 	 */
 	protected function getComments($action, $limit = 400)
 	{
@@ -93,6 +93,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		switch ($action)
 		{
 			case self::ACTION_TEST_ENCRYPT:
+				// Find unencrypted comments
 				$sql = "
 					SELECT
 						*
@@ -115,10 +116,16 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				";
 				break;
 			case self::ACTION_FULL_ENCRYPT:
+				// Find encrypted comments that haven't had their plaintext data nulled yet. For safety
+				// reasons, this does not include plaintext comments
+				$sql = $this->getSqlForEncryptedCommentsList($wpdb, false, $limit);
 				break;
 			case self::ACTION_TEST_DECRYPT:
+				// Not supported at the moment
 				break;
 			case self::ACTION_FULL_DECRYPT:
+				// Find fully-encrypted comments
+				$sql = $this->getSqlForEncryptedCommentsList($wpdb, true, $limit);
 				break;
 		}
 
@@ -156,6 +163,12 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 					$this->getPublicKeyHash(),
 					true
 				);
+				
+				// Special clause for full encryption
+				if ($action == self::ACTION_FULL_ENCRYPT)
+				{
+					
+				}
 				break;
 		}
 	}

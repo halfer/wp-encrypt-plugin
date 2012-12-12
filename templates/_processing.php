@@ -8,9 +8,9 @@
 	Action:
 	<select name="action_code" id="action_code">
 		<optgroup label="Encryption actions">
-			<option value="<?php echo CommentsEncryptBase::ACTION_TEST_ENCRYPT ?>">Test encrypt</option>
-			<option value="<?php echo CommentsEncryptBase::ACTION_FULL_ENCRYPT ?>">Fully encrypt</option>
-			<option value="<?php echo CommentsEncryptBase::ACTION_FULL_DECRYPT ?>">Fully decrypt</option>
+			<option value="<?php echo CommentsEncryptBase::ACTION_TEST_ENCRYPT ?>">Test encrypt ordinary comments</option>
+			<option value="<?php echo CommentsEncryptBase::ACTION_FULL_ENCRYPT ?>">Fully encrypt test comments</option>
+			<option value="<?php echo CommentsEncryptBase::ACTION_FULL_DECRYPT ?>">Fully decrypt all comments</option>
 		</optgroup>
 		<optgroup label="Gravatar hash actions">
 			<option value="<?php echo CommentsEncryptBase::ACTION_ADD_HASHES ?>">Add hashes</option>

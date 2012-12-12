@@ -23,11 +23,11 @@ class EncryptDemoStatus extends TemplateComponentBase
 		$commentCount = $wpdb->get_var($wpdb->prepare($sql));
 
 		// Count all comments that are test-encrypted
-		$sql = $this->getController()->getSqlForEncryptedComments($wpdb, false);
+		$sql = $this->getController()->getSqlForEncryptedCommentsCount($wpdb, false);
 		$testCommentCount = $wpdb->get_var($wpdb->prepare($sql));
 
 		// Count all comments that are fully encrypted
-		$sql = $this->getController()->getSqlForEncryptedComments($wpdb, true);
+		$sql = $this->getController()->getSqlForEncryptedCommentsCount($wpdb, true);
 		$encryptedCommentCount = $wpdb->get_var($wpdb->prepare($sql));
 
 		// Count the number of hashes

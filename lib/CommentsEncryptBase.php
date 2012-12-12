@@ -43,13 +43,23 @@ class CommentsEncryptBase extends TemplateSystem
 	 * @param boolean $isFullyEncrypted
 	 * @return string
 	 */
-	public function getSqlForEncryptedComments(wpdb $wpdb, $isFullyEncrypted)
+	public function getSqlForEncryptedCommentsCount(wpdb $wpdb, $isFullyEncrypted)
+	{
+		return $this->getSqlForEncryptedCommentsGeneral($wpdb, 'COUNT(*)', $isFullyEncrypted);
+	}
+
+	public function getSqlForEncryptedCommentsList(wpdb $wpdb, $isFullyEncrypted, $limit)
+	{
+		return $this->getSqlForEncryptedCommentsGeneral($wpdb, '*', $isFullyEncrypted) . " LIMIT $limit";
+	}
+
+	protected function getSqlForEncryptedCommentsGeneral(wpdb $wpdb, $columns, $isFullyEncrypted)
 	{
 		$notSql = $isFullyEncrypted ? '' : 'NOT';
 
 		return "
 			SELECT
-				COUNT(*)
+				$columns
 			FROM
 				$wpdb->comments comments
 			INNER JOIN $wpdb->commentmeta meta ON (comments.comment_ID = meta.comment_id)
