@@ -1,7 +1,6 @@
 <?php
 /*
 Plugin Name: Encrypt Demo
-Plugin URI: http://blog.jondh.me.uk/encrypt-demo
 Description: Encrypt email/IP of comments using PPK
 Version: 0.1
 Author: Jon Hinks
