@@ -85,7 +85,7 @@
 		if (data.count > 0) {
 			// ...update the html status block
 			if (data.status_block) {
-				jQuery('#status_block').html(data.status_block);
+				jQuery('#status-block').html(data.status_block);
 			}
 		} else {
 			// If zero comments were processed, turn off
