@@ -27,7 +27,7 @@
 		</ol>
 		<li>Show encryption progress</li>
 		<ol>
-			<li>When encrypting, paint a barchart of progress</li>
+			<li><s>When encrypting, paint a barchart of progress</s></li>
 			<li>Add an ETA time</li>
 			<li>Add spinner</li>
 		</ol>
@@ -62,8 +62,10 @@
 			>use configargs</a>)</li>
 		<li>Collapsible blocks in options screen</li>
 		<li>Warning if large numbers of comments remain unencrypted/test-encrypted for long periods</li>
+		<li>Setting to specify how long private key cookie is remembered for</li>
 		<li>Support multiple private keys?</li>
 		<li>Speed tests to see if phpsec lib is faster/slower than openssl extension</li>
-		<li>Offer template system as generic solution for WP plugins</li>
+		<li><s>Offer template system as generic solution for WP plugins</s></li>
+		<li>Use option system to cache COUNT(*) calls, as these are slow</li>
 	</ol>
 </div>
