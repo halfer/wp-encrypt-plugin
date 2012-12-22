@@ -27,3 +27,54 @@
 	font-weight: bold;
 }
 
+/* This wraps the whole chart */
+#encrypt-demo-options .bar-chart-block {
+	border: 1px solid silver;
+	padding: 8px 8px 5px 8px;
+}
+
+/* This wraps the bars section */
+#encrypt-demo-options .bar-chart-container { }
+
+/* This wraps the legend section */
+#encrypt-demo-options .bar-chart-legend-container {
+	margin-top: 4px;
+	font-size: 0.9em;
+}
+
+/* This is a section of coloured bar */
+#encrypt-demo-options .bar-chart-bar-item {
+	border: 0;
+	float: left;
+	padding: 0;
+	font-size: 0.85em;
+}
+
+/* This is the text inside the section of coloured bar */
+#encrypt-demo-options .bar-chart-bar-item-text {
+	padding: 3px;
+}
+
+/* These are for coloured bars and their corresponding legend blobs */
+#encrypt-demo-options .bar-1 { background-color: red; color: white; }
+#encrypt-demo-options .bar-2 { background-color: orange; }
+#encrypt-demo-options .bar-3 { background-color: green; }
+
+/* A legend item is the holder for a blob and its text */
+#encrypt-demo-options .bar-chart-legend-item {
+	float: left;
+	margin-right: 20px;
+}
+
+/* This is the blob of colour in the legend block */
+#encrypt-demo-options .bar-chart-legend-blob {
+	width: 12px;
+	height: 12px;
+	margin-top: 2px;
+	margin-right: 4px;
+	float: left; 
+}
+
+#encrypt-demo-options .clear {
+	clear: both;
+}
