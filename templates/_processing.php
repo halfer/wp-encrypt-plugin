@@ -12,6 +12,9 @@
 			<option value="<?php echo CommentsEncryptBase::ACTION_FULL_ENCRYPT ?>">Fully encrypt test comments</option>
 			<option value="<?php echo CommentsEncryptBase::ACTION_FULL_DECRYPT ?>">Fully decrypt all comments</option>
 		</optgroup>
+		<optgroup label="Test actions">
+			<option value="<?php echo CommentsEncryptBase::ACTION_CHECK ?>">Validate test-encrypted comments</option>
+		</optgroup>
 		<optgroup label="Gravatar hash actions">
 			<option value="<?php echo CommentsEncryptBase::ACTION_ADD_HASHES ?>">Add hashes</option>
 			<option value="<?php echo CommentsEncryptBase::ACTION_REMOVE_HASHES ?>">Remove hashes</option>
@@ -87,6 +90,11 @@
 		} else {
 			// If zero comments were processed, turn off
 			stopDecryption();
+		}
+		
+		// Handle any error replies
+		if (data.error) {
+			alert('Error: ' + data.error);
 		}
 	}
 

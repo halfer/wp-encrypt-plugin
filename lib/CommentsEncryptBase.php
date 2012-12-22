@@ -35,6 +35,7 @@ class CommentsEncryptBase extends TemplateSystem
 	const ACTION_FULL_DECRYPT = 4;
 	const ACTION_ADD_HASHES = 5;
 	const ACTION_REMOVE_HASHES = 6;
+	const ACTION_CHECK = 7;
 
 	/**
 	 * Returns the SQL for counting fully or test encrypted comments
@@ -70,5 +71,15 @@ class CommentsEncryptBase extends TemplateSystem
 					AND comments.comment_author_IP = ''
 				)
 		";
+	}
+
+	/**
+	 * Returns the private key cookie (or null if unset)
+	 * 
+	 * @return string
+	 */
+	protected function getPrivateKey()
+	{
+		return isset($_COOKIE[self::COOKIE_PRIV_KEY]) ? $_COOKIE[self::COOKIE_PRIV_KEY] : null;
 	}
 }

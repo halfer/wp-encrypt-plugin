@@ -7,7 +7,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	public function preExecute()
 	{
 		// Get the action from the menu, only do something if this is a valid choice
-		$action = $this->getAction();
+		list($action, $errorMessage) = $this->getAction();
 		if ($action)
 		{
 			// Validate the public key
@@ -29,15 +29,16 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				$this->doAction($action, $comment);
 				$this->beKindToTheCpu($delay);
 			}
-		}
 
-		$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
+			$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
+		}
 
 		echo json_encode(
 			array(
 				'count' => count($comments),
 				'status_block' => $html,
 				'peak_mem_usage' => memory_get_peak_usage(),
+				'error' => $errorMessage,
 			)
 		);
 	}
@@ -50,19 +51,48 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		// Does nothing at the moment
 	}
 
+	/**
+	 * Gets action code and error message
+	 * 
+	 * @return array List in format array(action code, error message)
+	 */
 	protected function getAction()
 	{
+		$error = null;
+
+		// Validate the action code (this will only go wrong if a naughty user injects values into the UI)
 		$action = $this->getInput('action_code');
 		$actionList = array(
 			self::ACTION_TEST_ENCRYPT,
 			self::ACTION_FULL_ENCRYPT,
 			self::ACTION_FULL_DECRYPT,
 			self::ACTION_ADD_HASHES,
-			self::ACTION_REMOVE_HASHES
+			self::ACTION_REMOVE_HASHES,
+			self::ACTION_CHECK
 		);
 		$ok = array_search($action, $actionList) !== false;
+		if (!$ok) 
+		{
+			$error = 'That action is an invalid choice';
+		}
 
-		return $ok ? $action : null;
+		// If the action is good, see if there are any other obvious error conditions
+		if ( $ok )
+		{
+			switch ( $action )
+			{
+				// Return an error if we need the privkey but it's not set
+				case self::ACTION_FULL_DECRYPT:
+				case self::ACTION_CHECK:
+					if (!$this->getPrivateKey())
+					{
+						$ok = false;
+						$error = 'This operation requires the private key to be logged in';
+					}
+			}
+		}
+
+		return array($ok ? $action : null, $error);
 	}
 
 	/**
@@ -116,8 +146,9 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				";
 				break;
 			case self::ACTION_FULL_ENCRYPT:
-				// Find encrypted comments that haven't had their plaintext data nulled yet. For safety
-				// reasons, this does not include plaintext comments
+			case self::ACTION_CHECK:
+				// Find test-encrypted (i.e. they haven't had their plaintext data nulled yet). When we are
+				// full-encrypting, for safety reasons we do not include plaintext comments
 				$sql = $this->getSqlForEncryptedCommentsList($wpdb, false, $limit);
 				break;
 			case self::ACTION_TEST_DECRYPT:
@@ -169,6 +200,8 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				{
 					
 				}
+				break;
+			case self::ACTION_CHECK:
 				break;
 		}
 	}

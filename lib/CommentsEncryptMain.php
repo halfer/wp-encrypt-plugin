@@ -83,7 +83,7 @@ class CommentsEncryptMain extends CommentsEncryptBase
 
 	public function adminBarRegister(WP_Admin_Bar $WpAdminBar)
 	{
-		$privKeySet = (bool) $_COOKIE[self::COOKIE_PRIV_KEY];
+		$privKeySet = (bool) $this->getPrivateKey();
 
 		$WpAdminBar->add_menu(
 			array(
@@ -105,7 +105,7 @@ class CommentsEncryptMain extends CommentsEncryptBase
 
 		// Only decrypt if we actually have a cookie key
 		$email = '';
-		if ($privKey = $_COOKIE[self::COOKIE_PRIV_KEY])
+		if ($privKey = $this->getPrivateKey())
 		{
 			$this->decryptComment($this->encoder, $comment);
 			$email = $comment->decrypted->comment_author_email;
@@ -120,7 +120,7 @@ class CommentsEncryptMain extends CommentsEncryptBase
 
 		// Only decrypt if we actually have a cookie key
 		$ip = '';
-		if ($privKey = $_COOKIE[self::COOKIE_PRIV_KEY])
+		if ($privKey = $this->getPrivateKey())
 		{
 			$this->decryptComment($this->encoder, $comment);
 			$ip = $comment->decrypted->comment_author_IP;
@@ -286,7 +286,7 @@ class CommentsEncryptMain extends CommentsEncryptBase
 			// In the comments screen, we need to prepare for decryption
 			require_once $this->root . '/lib/EncDec.php';
 
-			if ($privKey = $_COOKIE[self::COOKIE_PRIV_KEY])
+			if ($privKey = $this->getPrivateKey())
 			{
 				$this->encoder = new EncDec();
 				// @todo Do we need to handle an ok = false here?
@@ -404,9 +404,7 @@ class CommentsEncryptMain extends CommentsEncryptBase
 
 	public function loginScreenHandler()
 	{
-		$privKey = $_COOKIE[ self::COOKIE_PRIV_KEY ];
-
-		$this->renderTemplate('login', array('privKey' => $privKey));
+		$this->renderTemplate('login', array('privKey' => $this->getPrivateKey()));
 	}
 
 	public function searchScreenHandler()
