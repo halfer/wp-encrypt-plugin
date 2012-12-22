@@ -4,7 +4,7 @@
 	<div class="bar-chart-block">
 		<div class="bar-chart-container">
 			<div class="bar-chart-bar-item bar-1"
-				 style="width: <?php echo $encryptedCommentPc . '%' ?>;"
+				 style="width: <?php echo (100 - $encryptedCommentPc - $testCommentPc) . '%' ?>;"
 			>
 				<span class="bar-chart-bar-item-text"></span>
 			</div>
@@ -14,7 +14,7 @@
 				<span class="bar-chart-bar-item-text"></span>
 			</div>
 			<div class="bar-chart-bar-item bar-3"
-				 style="width: <?php echo (100 - $encryptedCommentPc - $testCommentPc) . '%' ?>;"
+				 style="width: <?php echo $encryptedCommentPc . '%' ?>;"
 			>
 				<span class="bar-chart-bar-item-text"></span>
 			</div>

@@ -31,8 +31,8 @@ class EncryptDemoStatus extends TemplateComponentBase
 		$encryptedCommentCount = $wpdb->get_var($wpdb->prepare($sql));
 
 		// Get percentages for the chart
-		$testCommentPc = floor($testCommentCount / $commentCount) * 100;
-		$encryptedCommentPc = floor($encryptedCommentCount / $commentCount) * 100;
+		$testCommentPc = floor(100 * $testCommentCount / $commentCount);
+		$encryptedCommentPc = floor(100 * $encryptedCommentCount / $commentCount);
 
 		// Count the number of hashes
 		$sql = "
