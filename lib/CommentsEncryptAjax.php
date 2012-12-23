@@ -8,40 +8,41 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	{
 		$html = '';
 
+		// Set up encryption class
+		$this->encoder = new EncDec();
+
 		// Get the action from the menu, only do something if this is a valid choice
 		list($action, $errorMessage) = $this->getAction();
 		if ($action)
 		{
-			// Validate the public key
-			$pubKey = get_option('encdemo_pub_key');
-			$this->checkPublicKey();
-
 			// Get speed setting
 			$delay = $this->getDelaySetting();
 
-			// Set up encryption class
-			// @todo Switch the option string to a constant from another class
-			$this->encoder = new EncDec();
-			$this->encoder->setPublicKey($pubKey);
+			$this->encoder->setKeysFromPrivateKey($this->getPrivateKey());
 
-			// Process comments
-			$comments = $this->getComments($action);
-			foreach($comments as $comment)
+			if (!$errorMessage)
 			{
-				$result = $this->doAction($action, $comment);
-				
-				if ($result === true)
+				// Process comments
+				$comments = $this->getComments($action);
+				foreach($comments as $comment)
 				{
-					$this->beKindToTheCpu($delay);
-				}
-				else
-				{
-					// Non-true responses are errors
-					$errorMessage = $result;
-				}
-			}
+					$result = $this->doAction($action, $comment);
 
-			$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
+					if ($result === true)
+					{
+						$this->beKindToTheCpu($delay);
+					}
+					else
+					{
+						// Non-true responses are errors
+						$errorMessage = $result;
+						break;
+					}
+				}
+
+				// @todo Only do this if we're encrypting/decrypting
+				$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
+			}
 		}
 
 		echo json_encode(
@@ -55,11 +56,20 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	}
 
 	/**
-	 * Ensures that we have a public key
+	 * Ensures the public key matches the one in the private key
 	 */
 	protected function checkPublicKey()
 	{
-		// Does nothing at the moment
+		$error = false;
+
+		// Check that the derived public key is the one we have on record
+		$pubKey = $this->getPublicKey();
+		if ($pubKey != $this->getEncoder()->getPublicKey())
+		{
+			$error = "The public key on record doesn't match the one inside the logged-in private key";
+		}
+
+		return $error ? $error : true;
 	}
 
 	/**
@@ -92,6 +102,9 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		{
 			switch ( $action )
 			{
+				case self::ACTION_TEST_ENCRYPT:
+					$this->getEncoder()->setPublicKey($this->getPublicKey());
+					break;
 				// Return an error if we need the privkey but it's not set
 				case self::ACTION_FULL_DECRYPT:
 				case self::ACTION_CHECK:
@@ -100,6 +113,21 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 						$ok = false;
 						$error = 'This operation requires the private key to be logged in';
 					}
+
+					// Check that the current pub key matches the one in the logged-in priv key
+					if (!$error)
+					{
+						$this->getEncoder()->setKeysFromPrivateKey($this->getPrivateKey());
+
+						$result = $this->checkPublicKey();
+						if ($result !== true)
+						{
+							$ok = false;
+							$error = $result;
+						}
+					}
+					
+					break;
 			}
 		}
 
@@ -257,6 +285,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	protected function checkComment(stdClass $comment)
 	{
 		$error = null;
+		$id = $comment->comment_ID;
 
 		// If this is the first op, clear progress
 		if ($this->getInput('callback_first'))
@@ -265,16 +294,20 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		}
 
 		// Ensure the pub hash is the same as the stored pub key
-		$thisHash = get_comment_meta($comment->comment_ID, self::META_PUB_KEY_HASH, $single = true);
+		$thisHash = get_comment_meta($id, self::META_PUB_KEY_HASH, $single = true);
 		$currentHash = $this->getEncoder()->getPublicKeyShortHash();
 		if ($thisHash !== $currentHash)
 		{
-			$id = $comment->comment_ID;
 			$error = "Comment #{$id} has a public key hash of {$thisHash} but the current hash is {$currentHash}";
 		}
 
 		// Get the encrypted string
-		$encrypt = get_comment_meta($comment->comment_ID, self::META_ENCRYPTED);
+		$encrypted = get_comment_meta($id, self::META_ENCRYPTED, $single = true);
+		$decrypted = $this->getEncoder()->decrypt($encrypted);
+		if ($comment->comment_content != $decrypted)
+		{
+			$error = "Comment #{$id} is not encrypted correctly: " . $encrypted;
+		}
 
 		//update_option(self::OPTION_CHECKED_MAX, $i);
 

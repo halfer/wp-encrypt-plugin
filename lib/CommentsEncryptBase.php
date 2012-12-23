@@ -88,4 +88,9 @@ class CommentsEncryptBase extends TemplateSystem
 	{
 		return isset($_COOKIE[self::COOKIE_PRIV_KEY]) ? $_COOKIE[self::COOKIE_PRIV_KEY] : null;
 	}
+
+	protected function getPublicKey()
+	{
+		return get_option(self::OPTION_PUB_KEY);
+	}
 }
