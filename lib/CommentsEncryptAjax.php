@@ -402,7 +402,34 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				$sql = $this->getSqlForEncryptedCommentsCount($wpdb, false);
 				$totalCount = $wpdb->get_var($wpdb->prepare($sql));
 
-				$html = "Checked $checkedCount of $totalCount as decryptable";
+				// Get pc of checked comments
+				$checkedPc = floor(1000 * $checkedCount / $totalCount) / 10;
+
+				// Render an HTML bar chart of validated vs unvalidated
+				$html = $this->getRenderedPartial(
+					'bar-chart',
+					array(
+						'bars' => array(
+							$checkedPc,
+							100 - $checkedPc,
+						),
+						'labels' => array(
+							array(
+								'name'		=> 'Validated',
+								'value'		=> $checkedCount,
+							),
+							array(
+								'name'		=> 'Not validated',
+								'value'		=> $totalCount - $checkedCount,
+							),
+							array(
+								'name'		=> 'Total',
+								'value'		=> $totalCount,
+								'show_blob'	=> false,
+							)
+						),
+					)
+				);
 			}
 		}
 

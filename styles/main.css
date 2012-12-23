@@ -55,10 +55,14 @@
 	padding: 3px;
 }
 
-/* These are for coloured bars and their corresponding legend blobs */
-#encrypt-demo-options .bar-1 { background-color: red; color: white; }
-#encrypt-demo-options .bar-2 { background-color: orange; }
-#encrypt-demo-options .bar-3 { background-color: green; }
+/* These are for the encryption status bar graph and its corresponding legend blobs */
+#encrypt-demo-options #status-block .bar-1 { background-color: red; color: white; }
+#encrypt-demo-options #status-block .bar-2 { background-color: orange; }
+#encrypt-demo-options #status-block .bar-3 { background-color: #22cc22; }
+
+/* These are for the processing bar graph and its corresponding legend blobs */
+#encrypt-demo-options #processing-status-block .bar-1 { background-color: #22cc22; }
+#encrypt-demo-options #processing-status-block .bar-2 { background-color: red; }
 
 /* A legend item is the holder for a blob and its text */
 #encrypt-demo-options .bar-chart-legend-item {
