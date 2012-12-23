@@ -21,7 +21,7 @@ class CommentsEncryptBase extends TemplateSystem
 	const META_ENCRYPTED = 'commentenc_encrypt';
 	const META_PUB_KEY_HASH = 'commentenc_pub_key_hash';
 	const META_VERSION = 'commentenc_version';
-	const META_AVATAR_HASH = 'commentend_avatar';
+	const META_AVATAR_HASH = 'commentenc_avatar';
 
 	const KEY_BAD_KEY = 'bad_priv_key';
 	const KEY_WRONG_KEY = 'wrong_priv_key';
