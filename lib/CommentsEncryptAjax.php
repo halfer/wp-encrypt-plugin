@@ -217,35 +217,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		{
 			case self::ACTION_TEST_ENCRYPT:
 			case self::ACTION_FULL_ENCRYPT:
-				// Here's the encryption itself
-				$encrypted = $this->getEncoder()->encrypt(
-					$this->formatStringsForEncryption(
-						$comment->comment_author_email,
-						$comment->comment_author_IP
-					)
-				);
-
-				// Here we store the data in one metadata item
-				add_comment_meta(
-					$comment->comment_ID,
-					self::META_ENCRYPTED,
-					$encrypted,
-					true
-				);
-
-				// We also store a partial hash of the key
-				add_comment_meta(
-					$comment->comment_ID,
-					self::META_PUB_KEY_HASH,
-					$this->getPublicKeyShortHash(),
-					true
-				);
-				
-				// Special clause for full encryption
-				if ($action == self::ACTION_FULL_ENCRYPT)
-				{
-					
-				}
+				$error = $this->encryptComment($action, $comment);
 				break;
 			case self::ACTION_CHECK:
 				$error = $this->checkComment($comment);
@@ -253,6 +225,41 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		}
 
 		return $error ? $error : true;
+	}
+
+	protected function encryptComment($action, stdClass $comment)
+	{
+		// Here's the encryption itself
+		$encrypted = $this->getEncoder()->encrypt(
+			$this->formatStringsForEncryption(
+				$comment->comment_author_email,
+				$comment->comment_author_IP
+			)
+		);
+
+		// Here we store the data in one metadata item
+		add_comment_meta(
+			$comment->comment_ID,
+			self::META_ENCRYPTED,
+			$encrypted,
+			true
+		);
+
+		// We also store a partial hash of the key
+		add_comment_meta(
+			$comment->comment_ID,
+			self::META_PUB_KEY_HASH,
+			$this->getPublicKeyShortHash(),
+			true
+		);
+
+		// Special clause for full encryption
+		if ($action == self::ACTION_FULL_ENCRYPT)
+		{
+			// @todo
+		}
+
+		return null;
 	}
 
 	/**
