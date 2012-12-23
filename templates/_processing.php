@@ -20,12 +20,18 @@
 			<option value="<?php echo CommentsEncryptBase::ACTION_REMOVE_HASHES ?>">Remove hashes</option>
 		</optgroup>
 	</select>
+
+	<?php // Spinner image for AJAX ops ?>
+	<img src="<?php echo plugins_url() . '/' . CommentsEncryptBase::PATH_PLUGIN_NAME ?>/spinner.gif"
+		 id="process-spinner"
+		 style="display: none;"
+	/>
 	
 	<div id="processing-status-block"></div>
 </p>
 
-<input type="submit" value="Start" id="button_start_operation" />
-<input type="submit" value="Stop" id="button_stop_operation"
+<input type="submit" value="Start" id="button-start-operation" />
+<input type="submit" value="Stop" id="button-stop-operation"
 	   style="display: none;" />
 
 <script type="text/javascript">
@@ -35,9 +41,10 @@
 	var timerHandle = null;
 
 	jQuery(document).ready(function() {
-		jQuery('#button_start_operation').click(function() {
+		jQuery('#button-start-operation').click(function() {
 			jQuery(this).hide();
-			jQuery('#button_stop_operation').show();
+			jQuery('#button-stop-operation').show();
+			jQuery('#process-spinner').show();
 			encryptionRunning = true;
 			callbackBusy = false;
 			callbackFirst = true;
@@ -46,7 +53,7 @@
 
 			return false;
 		});
-		jQuery('#button_stop_operation').click(function() {
+		jQuery('#button-stop-operation').click(function() {
 			stopDecryption();
 
 			return false;
@@ -54,8 +61,9 @@
 	});
 
 	function stopDecryption() {
-		jQuery('#button_start_operation').show();
-		jQuery('#button_stop_operation').hide();
+		jQuery('#button-start-operation').show();
+		jQuery('#button-stop-operation').hide();
+		jQuery('#process-spinner').hide();
 
 		clearTimeout(timerHandle);
 		encryptionRunning = false;

@@ -28,8 +28,8 @@
 		<li>Show encryption progress</li>
 		<ol>
 			<li><s>When encrypting, paint a barchart of progress</s></li>
+			<li><s>Add spinner</s></li>
 			<li>Add an ETA time</li>
-			<li>Add spinner</li>
 		</ol>
 		<li>Only try decrypting comments where there is a short hash match</li>
 		<li><s>Option to import priv key manually</s></li>
