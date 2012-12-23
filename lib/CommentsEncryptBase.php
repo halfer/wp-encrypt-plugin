@@ -10,6 +10,9 @@ class CommentsEncryptBase extends TemplateSystem
 	const OPTION_PUB_KEY_HASH = 'encdemo_pub_key_hash';
 	const OPTION_STORE_AVATAR_HASHES = 'commentsencrypt_storeavatar';
 
+	// WP options used for non-option purposes (e.g. result caching)
+	const OPTION_CHECKED_MAX = 'encdemo_checked_max';
+
 	// Stores values in user cookies
 	const COOKIE_NEW_PRIV_KEY = 'wp-encrypt-plugin_new-priv-key';
 	const COOKIE_PRIV_KEY = 'wp-encrypt-plugin_priv-key';
@@ -70,6 +73,9 @@ class CommentsEncryptBase extends TemplateSystem
 					comments.comment_author_email = ''
 					AND comments.comment_author_IP = ''
 				)
+			/* Useful if we are marking 'checked up to id X' */
+			ORDER BY
+				comments.comment_ID ASC
 		";
 	}
 

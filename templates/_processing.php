@@ -28,6 +28,7 @@
 
 <script type="text/javascript">
 	var encryptionRunning = false;
+	var callbackFirst = false;
 	var callbackBusy = false;
 	var timerHandle = null;
 
@@ -37,6 +38,7 @@
 			jQuery('#button_stop_operation').show();
 			encryptionRunning = true;
 			callbackBusy = false;
+			callbackFirst = true;
 
 			timerHandle = setInterval(encryptionCallback, 2000);
 
@@ -67,11 +69,13 @@
 			jQuery.post(
 				'<?php echo plugin_dir_url('') ?>wp-encrypt-plugin/ajax.php',
 				{
-					'action_code': jQuery('#action_code').val()
+					'action_code': jQuery('#action_code').val(),
+					'callback_first' : callbackFirst
 				},
 				ajaxSuccessCallback,
 				'json'
 			);
+			callbackFirst = false;
 		}
 	}
 
@@ -94,6 +98,7 @@
 		
 		// Handle any error replies
 		if (data.error) {
+			stopDecryption();
 			alert('Error: ' + data.error);
 		}
 	}

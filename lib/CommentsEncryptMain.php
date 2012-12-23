@@ -591,13 +591,22 @@ class CommentsEncryptMain extends CommentsEncryptBase
 		wp_redirect('options-general.php?page=' . self::PAGE_OPTIONS, 303);
 	}
 
+	/**
+	 * Sets a cookie to store the private key
+	 * 
+	 * @todo Can't set path to $this->getAdminPath() since AJAX ops go to (non-admin) plugin path. Wonder
+	 *	if we can piggy-back the AJAX op inside a admin URL? Worst-case scenario, we could set two cookies,
+	 *	each with the right path restrictions.
+	 * 
+	 * @param string $privKey
+	 */
 	protected function setPrivateKeyCookie($privKey)
 	{
 		setcookie(
 			self::COOKIE_PRIV_KEY,
 			$privKey,
 			$privKey ? time() + 60 * 10 : time() - 60 * 10,
-			$this->getAdminPath(),
+			$_path = '/',
 			$_domain = null,
 			$_secure = false,
 			$_httponly = true

@@ -26,11 +26,20 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 			$comments = $this->getComments($action);
 			foreach($comments as $comment)
 			{
-				$this->doAction($action, $comment);
-				$this->beKindToTheCpu($delay);
+				$result = $this->doAction($action, $comment);
+				
+				if ($result === true)
+				{
+					$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
+					$this->beKindToTheCpu($delay);
+				}
+				else
+				{
+					// Non-true responses are errors
+					$errorMessage = $result;
+				}
 			}
 
-			$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
 		}
 
 		echo json_encode(
@@ -171,6 +180,8 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 
 	protected function doAction($action, stdClass $comment)
 	{
+		$error = false;
+
 		switch ($action)
 		{
 			case self::ACTION_TEST_ENCRYPT:
@@ -202,8 +213,11 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				}
 				break;
 			case self::ACTION_CHECK:
+				$error = $this->checkComment($comment);
 				break;
 		}
+
+		return $error ? $error : true;
 	}
 
 	/**
@@ -215,13 +229,53 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 */
 	protected function getPublicKeyHash()
 	{
-		$key = trim($this->encoder->getPublicKey());
-
-		return substr(sha1($key), 0, 12);
+		return $this->getEncoder()->getPublicKeyShortHash();
 	}
 
 	protected function beKindToTheCpu($delay)
 	{
 		usleep($delay);
+	}
+
+	/**
+	 * Returns the current instance of the encryption module
+	 * 
+	 * @return EncDec
+	 */
+	protected function getEncoder()
+	{
+		return $this->encoder;
+	}
+
+	/**
+	 * Mark test comments as checked
+	 * 
+	 * @param stdClass $comment
+	 */
+	protected function checkComment(stdClass $comment)
+	{
+		$error = null;
+
+		// If this is the first op, clear progress
+		if ($this->getInput('callback_first'))
+		{
+			delete_option(self::OPTION_CHECKED_MAX);
+		}
+
+		// Ensure the pub hash is the same as the stored pub key
+		$thisHash = get_comment_meta($comment->comment_ID, self::META_PUB_KEY_HASH, $single = true);
+		$currentHash = $this->getEncoder()->getPublicKeyShortHash();
+		if ($thisHash !== $currentHash)
+		{
+			$id = $comment->comment_ID;
+			$error = "Comment #{$id} has a public key hash of {$thisHash} but the current hash is {$currentHash}";
+		}
+
+		// Get the encrypted string
+		$encrypt = get_comment_meta($comment->comment_ID, self::META_ENCRYPTED);
+
+		//update_option(self::OPTION_CHECKED_MAX, $i);
+
+		return $error ? $error : true;
 	}
 }
