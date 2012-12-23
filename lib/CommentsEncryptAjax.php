@@ -6,6 +6,8 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 
 	public function preExecute()
 	{
+		$html = '';
+
 		// Get the action from the menu, only do something if this is a valid choice
 		list($action, $errorMessage) = $this->getAction();
 		if ($action)
@@ -30,7 +32,6 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				
 				if ($result === true)
 				{
-					$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
 					$this->beKindToTheCpu($delay);
 				}
 				else
@@ -40,6 +41,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				}
 			}
 
+			$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
 		}
 
 		echo json_encode(
