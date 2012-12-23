@@ -40,6 +40,9 @@ class CommentsEncryptBase extends TemplateSystem
 	const ACTION_REMOVE_HASHES = 6;
 	const ACTION_CHECK = 7;
 
+	// Used to access the same instance in various places on the comments admin screen
+	protected $encoder;
+
 	/**
 	 * Returns the SQL for counting fully or test encrypted comments
 	 * 
@@ -57,7 +60,19 @@ class CommentsEncryptBase extends TemplateSystem
 		return $this->getSqlForEncryptedCommentsGeneral($wpdb, '*', $isFullyEncrypted) . " LIMIT $limit";
 	}
 
-	protected function getSqlForEncryptedCommentsGeneral(wpdb $wpdb, $columns, $isFullyEncrypted)
+	public function getSqlForTestEncryptedComments( $wpdb, $limit, $maxCommentId = null)
+	{
+		$sql = $this->getSqlForEncryptedCommentsGeneral(
+			$wpdb,
+			'*',
+			false,
+			"AND comments.comment_ID > $maxCommentId"
+		);
+
+		return "$sql LIMIT $limit";
+	}
+
+	protected function getSqlForEncryptedCommentsGeneral(wpdb $wpdb, $columns, $isFullyEncrypted, $where = '')
 	{
 		$notSql = $isFullyEncrypted ? '' : 'NOT';
 
@@ -73,6 +88,7 @@ class CommentsEncryptBase extends TemplateSystem
 					comments.comment_author_email = ''
 					AND comments.comment_author_IP = ''
 				)
+				$where
 			/* Useful if we are marking 'checked up to id X' */
 			ORDER BY
 				comments.comment_ID ASC
@@ -92,5 +108,17 @@ class CommentsEncryptBase extends TemplateSystem
 	protected function getPublicKey()
 	{
 		return get_option(self::OPTION_PUB_KEY);
+	}
+
+	/**
+	 * Returns the current instance of the encryption module
+	 * 
+	 * Useful to the IDE; autocomplete doesn't always work with the class attribute directly
+	 * 
+	 * @return EncDec
+	 */
+	protected function getEncoder()
+	{
+		return $this->encoder;
 	}
 }

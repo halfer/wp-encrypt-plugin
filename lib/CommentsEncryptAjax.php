@@ -2,8 +2,6 @@
 
 class CommentsEncryptAjax extends CommentsEncryptBase
 {
-	protected $encoder;
-
 	public function preExecute()
 	{
 		$html = '';
@@ -185,10 +183,13 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				";
 				break;
 			case self::ACTION_FULL_ENCRYPT:
-			case self::ACTION_CHECK:
-				// Find test-encrypted (i.e. they haven't had their plaintext data nulled yet). When we are
-				// full-encrypting, for safety reasons we do not include plaintext comments
+				// When we are full-encrypting, for safety reasons we do not include plaintext comments
 				$sql = $this->getSqlForEncryptedCommentsList($wpdb, false, $limit);
+				break;
+			case self::ACTION_CHECK:
+				// Find test-encrypted comments
+				$maxCommentId = $this->getLastCheckedCommentId();
+				$sql = $this->getSqlForTestEncryptedComments($wpdb, $limit, $maxCommentId);
 				break;
 			case self::ACTION_TEST_DECRYPT:
 				// Not supported at the moment
@@ -254,6 +255,15 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		return $error ? $error : true;
 	}
 
+	/**
+	 * Formats items in a comment for encryption
+	 * 
+	 * @todo Accept a stdClass $comment and return a string
+	 * 
+	 * @param string $email
+	 * @param string $ip
+	 * @return string
+	 */
 	protected function formatStringsForEncryption($email, $ip)
 	{
 		return $email . "\n" . $ip;
@@ -277,18 +287,6 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	}
 
 	/**
-	 * Returns the current instance of the encryption module
-	 * 
-	 * Useful to the IDE; autocomplete doesn't always work with the class attribute directly
-	 * 
-	 * @return EncDec
-	 */
-	protected function getEncoder()
-	{
-		return $this->encoder;
-	}
-
-	/**
 	 * Mark test comments as checked
 	 * 
 	 * @param stdClass $comment
@@ -297,12 +295,6 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	{
 		$error = null;
 		$id = $comment->comment_ID;
-
-		// If this is the first op, clear progress
-		if ($this->getInput('callback_first'))
-		{
-			delete_option(self::OPTION_CHECKED_MAX);
-		}
 
 		// Ensure the pub hash is the same as the stored pub key
 		$thisHash = get_comment_meta($id, self::META_PUB_KEY_HASH, $single = true);
@@ -319,13 +311,27 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 			$comment->comment_author_email,
 			$comment->comment_author_IP
 		);
-		if ($expectedPlain != $decrypted)
+		if ($expectedPlain == $decrypted)
+		{
+			// @todo For speed we should do this after the processing loop
+			update_option(self::OPTION_CHECKED_MAX, $id);
+		}
+		else
 		{
 			$error = "Comment #{$id} is not encrypted correctly, or encrypted with a different key";
 		}
 
-		//update_option(self::OPTION_CHECKED_MAX, $i);
-
 		return $error ? $error : true;
+	}
+
+	protected function getLastCheckedCommentId()
+	{
+		// If this is the first op, clear progress
+		if ($this->getInput('callback_first'))
+		{
+			delete_option(self::OPTION_CHECKED_MAX);
+		}
+
+		return get_option(self::OPTION_CHECKED_MAX, 0);
 	}
 }

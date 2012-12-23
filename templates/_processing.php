@@ -70,7 +70,7 @@
 				'<?php echo plugin_dir_url('') ?>wp-encrypt-plugin/ajax.php',
 				{
 					'action_code': jQuery('#action_code').val(),
-					'callback_first' : callbackFirst
+					'callback_first': callbackFirst ? 1 : null
 				},
 				ajaxSuccessCallback,
 				'json'

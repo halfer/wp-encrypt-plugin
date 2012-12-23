@@ -5,9 +5,6 @@ class CommentsEncryptMain extends CommentsEncryptBase
 	// Used to pass template rendering values around this object
 	protected $templateVars = array();
 
-	// Used to access the same instance in various places on the comments admin screen
-	protected $encoder;
-
 	public function preExecute()
 	{
 		// Set up init object, removes some clutter from the main class
