@@ -12,6 +12,7 @@ class CommentsEncryptBase extends TemplateSystem
 
 	// WP options used for non-option purposes (e.g. result caching)
 	const OPTION_CHECKED_MAX = 'encdemo_checked_max';
+	const OPTION_CHECKED_COUNT = 'encdemo_checked_count';
 
 	// Stores values in user cookies
 	const COOKIE_NEW_PRIV_KEY = 'wp-encrypt-plugin_new-priv-key';

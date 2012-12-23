@@ -38,15 +38,16 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 					}
 				}
 
-				// @todo Only do this if we're encrypting/decrypting
-				$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
+				// Call cleanup to finish off this action
+				$html = $this->doPostLoop($action, $comments, $result);
 			}
 		}
 
 		echo json_encode(
 			array(
 				'count' => count($comments),
-				'status_block' => $html,
+				'block_id' => ( $action == self::ACTION_CHECK ) ? 'processing-status-block' : 'status-block',
+				'html_block' => $html,
 				'peak_mem_usage' => memory_get_peak_usage(),
 				'error' => $errorMessage,
 			)
@@ -336,9 +337,75 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		// If this is the first op, clear progress
 		if ($this->getInput('callback_first'))
 		{
-			delete_option(self::OPTION_CHECKED_MAX);
+			update_option(self::OPTION_CHECKED_MAX, 0);
+			update_option(self::OPTION_CHECKED_COUNT, 0);
 		}
 
 		return get_option(self::OPTION_CHECKED_MAX, 0);
+	}
+
+	/**
+	 * Finish processing after comments loop
+	 * 
+	 * @param integer $action
+	 * @param array $comments
+	 * @param mixed $result True if okay, string error message if not
+	 * @return string
+	 */
+	protected function doPostLoop($action, array $comments, $result)
+	{
+		$html = '';
+
+		switch ($action)
+		{
+			case self::ACTION_TEST_ENCRYPT:
+			case self::ACTION_FULL_ENCRYPT:
+			case self::ACTION_TEST_DECRYPT:
+			case self::ACTION_FULL_DECRYPT:
+				$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
+				break;
+			case self::ACTION_CHECK:
+				$html = $this->postLoopCheck($comments, $result);
+				break;
+		}
+
+		return $html;
+	}
+
+	/**
+	 * After the check action, we do this
+	 * 
+	 * @param array $comments
+	 * @param mixed $result True if okay, string error message if not
+	 * @return string
+	 */
+	protected function postLoopCheck(array $comments, $result)
+	{
+		/* @var $wpdb wpdb */
+		global $wpdb;
+
+		$html = '';
+
+		// If everything went ok, record our progress with this block
+		if ($result == true)
+		{
+			if ($lastComment = end($comments))
+			{
+				// Make a note that we've checked up to this ID (they are ordered by ID ascending)
+				update_option(self::OPTION_CHECKED_MAX, $lastComment->comment_ID);
+
+				// We've checked this number of comments
+				$checkedCount = get_option(self::OPTION_CHECKED_COUNT, 0) + count($comments);
+				$ok = update_option(self::OPTION_CHECKED_COUNT, $checkedCount);
+
+				// Count total number of test comments
+				$sql = $this->getSqlForEncryptedCommentsCount($wpdb, false);
+				$totalCount = $wpdb->get_var($wpdb->prepare($sql));
+
+				$html = "Checked $checkedCount of $totalCount as decryptable";
+			}
+		}
+
+		return $html;
 	}
 }

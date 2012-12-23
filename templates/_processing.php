@@ -20,6 +20,8 @@
 			<option value="<?php echo CommentsEncryptBase::ACTION_REMOVE_HASHES ?>">Remove hashes</option>
 		</optgroup>
 	</select>
+	
+	<div id="processing-status-block"></div>
 </p>
 
 <input type="submit" value="Start" id="button_start_operation" />
@@ -70,7 +72,8 @@
 				'<?php echo plugin_dir_url('') ?>wp-encrypt-plugin/ajax.php',
 				{
 					'action_code': jQuery('#action_code').val(),
-					'callback_first': callbackFirst ? 1 : null
+					/* JS empty string evaluates to false on server; note that false and null do not */
+					'callback_first': callbackFirst ? 1 : ''
 				},
 				ajaxSuccessCallback,
 				'json'
@@ -87,9 +90,9 @@
 
 		// If a number of comments were processed then...
 		if (data.count > 0) {
-			// ...update the html status block
-			if (data.status_block) {
-				jQuery('#status-block').html(data.status_block);
+			// ...update the specified status block
+			if (data.html_block) {
+				jQuery('#' + data.block_id).html(data.html_block);
 			}
 		} else {
 			// If zero comments were processed, turn off
