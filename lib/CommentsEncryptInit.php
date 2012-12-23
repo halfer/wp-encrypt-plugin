@@ -9,23 +9,18 @@ class CommentsEncryptInit
 	{
 		// Will be useful later on
 		$this->Main = $CommentsEncryptMain;
-		$root = $this->Main->getRoot();
+		$this->root = $this->Main->getRoot();
 
+		$this->initRegistrationHooks();
+		$this->initAvatarRendering();
+	}
+
+	protected function initRegistrationHooks()
+	{
 		// Set up activation and uninstall hooks
 		$pluginPath = CommentsEncryptMain::PATH_PLUGIN_NAME . '/main.php';
 		register_activation_hook($pluginPath, array($this, 'activationHook'));
-		register_uninstall_hook($pluginPath, array($this, 'uninstallHook'));
-
-		// If avatars are enabled, register encryption-friendly hook
-		if (get_option(CommentsEncryptMain::OPTION_STORE_AVATAR_HASHES))
-		{
-			require_once $root . '/lib/CommentsEncryptAvatar.php';
-			$Avatar = new CommentsEncryptAvatar();
-			add_filter(
-				'get_avatar',
-				array($Avatar, 'getAvatar')
-			);
-		}
+		register_uninstall_hook($pluginPath, array($this, 'uninstallHook'));		
 	}
 
 	/**
@@ -49,5 +44,20 @@ class CommentsEncryptInit
 			delete_option(CommentsEncryptMain::OPTION_PUB_KEY_HASH);
 			delete_option(CommentsEncryptMain::OPTION_STORE_AVATAR_HASHES)
 		;
+	}
+
+	protected function initAvatarRendering()
+	{
+		// If avatars are enabled, register encryption-friendly hook
+		if (get_option(CommentsEncryptMain::OPTION_STORE_AVATAR_HASHES))
+		{
+			require_once $this->root . '/lib/CommentsEncryptAvatar.php';
+			$Avatar = new CommentsEncryptAvatar();
+			add_filter(
+				'get_avatar',
+				array($Avatar, 'getAvatar')
+			);
+		}
+
 	}
 }
