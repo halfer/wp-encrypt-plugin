@@ -217,14 +217,18 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 			case self::ACTION_TEST_ENCRYPT:
 			case self::ACTION_FULL_ENCRYPT:
 				// Here's the encryption itself
-				$plain = $comment->comment_author_email . "\n" . $comment->comment_author_IP;
-				$encrypted = $this->encoder->encrypt($plain);
+				$encrypted = $this->getEncoder()->encrypt(
+					$this->formatStringsForEncryption(
+						$comment->comment_author_email,
+						$comment->comment_author_IP
+					)
+				);
 
 				// Here we store the data in one metadata item
 				add_comment_meta(
 					$comment->comment_ID,
 					self::META_ENCRYPTED,
-					base64_encode($encrypted),
+					$encrypted,
 					true
 				);
 
@@ -232,7 +236,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				add_comment_meta(
 					$comment->comment_ID,
 					self::META_PUB_KEY_HASH,
-					$this->getPublicKeyHash(),
+					$this->getPublicKeyShortHash(),
 					true
 				);
 				
@@ -250,6 +254,11 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		return $error ? $error : true;
 	}
 
+	protected function formatStringsForEncryption($email, $ip)
+	{
+		return $email . "\n" . $ip;
+	}
+
 	/**
 	 * Gets a partial sha1 hash of the current pub key
 	 * 
@@ -257,7 +266,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 * 
 	 * @return string
 	 */
-	protected function getPublicKeyHash()
+	protected function getPublicKeyShortHash()
 	{
 		return $this->getEncoder()->getPublicKeyShortHash();
 	}
@@ -269,6 +278,8 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 
 	/**
 	 * Returns the current instance of the encryption module
+	 * 
+	 * Useful to the IDE; autocomplete doesn't always work with the class attribute directly
 	 * 
 	 * @return EncDec
 	 */
@@ -304,9 +315,13 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		// Get the encrypted string
 		$encrypted = get_comment_meta($id, self::META_ENCRYPTED, $single = true);
 		$decrypted = $this->getEncoder()->decrypt($encrypted);
-		if ($comment->comment_content != $decrypted)
+		$expectedPlain = $this->formatStringsForEncryption(
+			$comment->comment_author_email,
+			$comment->comment_author_IP
+		);
+		if ($expectedPlain != $decrypted)
 		{
-			$error = "Comment #{$id} is not encrypted correctly: " . $encrypted;
+			$error = "Comment #{$id} is not encrypted correctly, or encrypted with a different key";
 		}
 
 		//update_option(self::OPTION_CHECKED_MAX, $i);

@@ -2,8 +2,14 @@
 
 class EncDec {
 
+	protected $useBase64;
 	protected $pubKey;
 	protected $privKey;
+
+	public function __construct($useBase64 = true)
+	{
+		$this->useBase64 = $useBase64;
+	}
 
 	/**
 	 * Creates a public and private key for subsequent use
@@ -46,6 +52,7 @@ class EncDec {
 
 	public function getPublicKeyLongHash()
 	{
+		// Shouldn't I trim first, then take the hash?
 		return trim(sha1($this->getPublicKey()));
 	}
 
@@ -59,13 +66,34 @@ class EncDec {
 	}
 
 	public function encrypt($data) {
+
+		if (!$this->pubKey)
+		{
+			throw new Exception('A public key must be set prior to encryption');
+		}
+
 		$encrypted = null;
 		openssl_public_encrypt($data, $encrypted, $this->pubKey);
+		if ($this->useBase64)
+		{
+			$encrypted = base64_encode($encrypted);
+		}
 
 		return $encrypted;
 	}
 
 	public function decrypt($encryptedData) {
+
+		if (!$this->privKey)
+		{
+			throw new Exception('A private key must be set prior to decryption');
+		}
+
+		if ($this->useBase64)
+		{
+			$encryptedData = base64_decode($encryptedData);
+		}
+
 		$decrypted = null;
 		openssl_private_decrypt($encryptedData, $decrypted, $this->privKey);
 
