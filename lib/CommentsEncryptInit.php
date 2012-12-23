@@ -13,6 +13,12 @@ class CommentsEncryptInit
 
 		$this->initRegistrationHooks();
 		$this->initAvatarRendering();
+		$this->initDecryptedEmail();
+		$this->initDecryptedIP();
+		$this->initNewCommentsAdmin();
+		$this->initMetaAction();
+		$this->initScreens();
+		$this->initCssQueueing();
 	}
 
 	protected function initRegistrationHooks()
@@ -58,6 +64,63 @@ class CommentsEncryptInit
 				array($Avatar, 'getAvatar')
 			);
 		}
+	}
 
+	/**
+	 * Registers a handler to decode a comment's email to plaintext
+	 * 
+	 * Doesn't work:
+	 *	add_filter('get_comment_author_email', 'get_decrypted_email');
+	 * Doesn't work:
+	 *	add_filter('comment_author_email_link', 'get_decrypted_email');
+	 * This works, but doesn't support html:
+	 *	'comment_email'
+	 */
+	protected function initDecryptedEmail()
+	{
+		add_filter('comment_email', array($this->Main, 'getDecryptedEmail'));
+	}
+
+	/*
+	 * Registers a handler to decode an IP to plaintext
+	 */
+	protected function initDecryptedIP()
+	{
+		add_filter('get_comment_author_IP', array($this->Main, 'getDecryptedIP'));
+	}
+
+	/**
+	 * Registers a handler to insert a new comments admin table column
+	 * 
+	 * Adding a custom column in the admin interface:
+	 *	http://stv.whtly.com/2011/07/27/adding-custom-columns-to-the-wordpress-comments-admin-page/
+	 * Don't think it's possible to insert HTML into the author column, see here:
+	 *	http://wordpress.stackexchange.com/questions/64973/is-it-possible-to-show-custom-comment-metadata-in-the-admin-panel
+	 */
+	protected function initNewCommentsAdmin()
+	{
+		add_filter('manage_edit-comments_columns', array($this->Main, 'newCommentsColumnHandler'));
+		add_filter('manage_comments_custom_column', array($this->Main, 'commentColumnContentHandler'), 10, 2 );
+	}
+
+	protected function initMetaAction()
+	{
+		add_filter( 'comment_row_actions', array($this->Main, 'metaActionHandler'), 11, 1 );
+	}
+
+	protected function initScreens()
+	{
+		// Set up handler for admin screen hook
+		add_action('admin_menu', array($this->Main, 'screensHandler'));
+
+		// Set up handler for admin bar registration (100 = put menu item at the end of standard items)
+		add_action('admin_bar_menu', array($this->Main, 'adminBarRegister'), 100);
+	}
+
+	protected function initCssQueueing()
+	{
+		// See http://codex.wordpress.org/Plugin_API/Action_Reference/admin_print_styles
+		// for the reason why we're not using admin_print_styles here
+		add_action('admin_enqueue_scripts', array($this->Main, 'queueCss'));
 	}
 }
