@@ -295,7 +295,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	}
 
 	/**
-	 * Mark test comments as checked
+	 * Ensure test comment can be decrypted
 	 * 
 	 * @param stdClass $comment
 	 */
@@ -319,12 +319,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 			$comment->comment_author_email,
 			$comment->comment_author_IP
 		);
-		if ($expectedPlain == $decrypted)
-		{
-			// @todo For speed we should do this after the processing loop
-			update_option(self::OPTION_CHECKED_MAX, $id);
-		}
-		else
+		if ($expectedPlain != $decrypted)
 		{
 			$error = "Comment #{$id} is not encrypted correctly, or encrypted with a different key";
 		}
