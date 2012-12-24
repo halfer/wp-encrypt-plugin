@@ -78,6 +78,8 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 */
 	protected function getAction()
 	{
+		global $wpdb;
+
 		$error = null;
 
 		// Validate the action code (this will only go wrong if a naughty user injects values into the UI)
@@ -104,33 +106,51 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				case self::ACTION_TEST_ENCRYPT:
 					$this->getEncoder()->setPublicKey($this->getPublicKey());
 					break;
-				// Return an error if we need the privkey but it's not set
 				case self::ACTION_FULL_DECRYPT:
 				case self::ACTION_CHECK:
-					if (!$this->getPrivateKey())
+					// Return an error if we need the privkey but it's not set
+					list($ok, $error) = $this->requirePrivateKey();
+					break;
+				case self::ACTION_ADD_HASHES:
+					// Require the privkey only if there are fully encrypted items
+					$sql = $this->getSqlForEncryptedCommentsCount($wpdb, true);
+					$encryptedCount = $wpdb->get_var($wpdb->prepare($sql));
+					if ($encryptedCount)
 					{
-						$ok = false;
-						$error = 'This operation requires the private key to be logged in';
+						list($ok, $error) = $this->requirePrivateKey();					
 					}
-
-					// Check that the current pub key matches the one in the logged-in priv key
-					if (!$error)
-					{
-						$this->getEncoder()->setKeysFromPrivateKey($this->getPrivateKey());
-
-						$result = $this->checkPublicKey();
-						if ($result !== true)
-						{
-							$ok = false;
-							$error = $result;
-						}
-					}
-					
 					break;
 			}
 		}
 
 		return array($ok ? $action : null, $error);
+	}
+
+	protected function requirePrivateKey()
+	{
+		$ok = true;
+		$error = null;
+
+		if (!$this->getPrivateKey())
+		{
+			$ok = false;
+			$error = 'This operation requires the private key to be logged in';
+		}
+
+		// Check that the current pub key matches the one in the logged-in priv key
+		if (!$error)
+		{
+			$this->getEncoder()->setKeysFromPrivateKey($this->getPrivateKey());
+
+			$result = $this->checkPublicKey();
+			if ($result !== true)
+			{
+				$ok = false;
+				$error = $result;
+			}
+		}
+
+		return array($ok, $error);
 	}
 
 	/**
