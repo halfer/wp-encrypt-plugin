@@ -256,10 +256,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	{
 		// Here's the encryption itself
 		$encrypted = $this->getEncoder()->encrypt(
-			$this->formatStringsForEncryption(
-				$comment->comment_author_email,
-				$comment->comment_author_IP
-			)
+			$this->formatStringsForEncryption($comment)
 		);
 
 		// Here we store the data in one metadata item
@@ -284,15 +281,12 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	/**
 	 * Formats items in a comment for encryption
 	 * 
-	 * @todo Accept a stdClass $comment and return a string
-	 * 
-	 * @param string $email
-	 * @param string $ip
+	 * @param stdClass $comment
 	 * @return string
 	 */
-	protected function formatStringsForEncryption($email, $ip)
+	protected function formatStringsForEncryption(stdClass $comment)
 	{
-		return $email . "\n" . $ip;
+		return $comment->comment_author_email . "\n" . $comment->comment_author_IP;
 	}
 
 	/**
@@ -333,10 +327,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		// Get the encrypted string
 		$encrypted = get_comment_meta($id, self::META_ENCRYPTED, $single = true);
 		$decrypted = $this->getEncoder()->decrypt($encrypted);
-		$expectedPlain = $this->formatStringsForEncryption(
-			$comment->comment_author_email,
-			$comment->comment_author_IP
-		);
+		$expectedPlain = $this->formatStringsForEncryption($comment);
 		if ($expectedPlain != $decrypted)
 		{
 			$error = "Comment #{$id} is not encrypted correctly, or encrypted with a different key";
