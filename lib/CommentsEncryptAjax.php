@@ -78,7 +78,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 */
 	protected function getAction()
 	{
-		global $wpdb;
+		$wpdb = $this->getGlobalDatabase();
 
 		$error = null;
 
@@ -108,6 +108,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 					break;
 				case self::ACTION_FULL_DECRYPT:
 				case self::ACTION_CHECK:
+				case self::ACTION_FULL_ENCRYPT:
 					// Return an error if we need the privkey but it's not set
 					list($ok, $error) = $this->requirePrivateKey();
 					break;
@@ -174,8 +175,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 */
 	protected function getComments($action, $limit = 400)
 	{
-		/* @var $wpdb wpdb */
-		global $wpdb;
+		$wpdb = $this->getGlobalDatabase();
 
 		$sql = '';
 		switch ($action)
@@ -237,18 +237,22 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		switch ($action)
 		{
 			case self::ACTION_TEST_ENCRYPT:
-			case self::ACTION_FULL_ENCRYPT:
-				$error = $this->encryptComment($action, $comment);
+				$error = $this->encryptComment($comment);
 				break;
+			case self::ACTION_FULL_ENCRYPT:
 			case self::ACTION_CHECK:
 				$error = $this->checkComment($comment);
+				if ($action == self::ACTION_FULL_ENCRYPT && !$error)
+				{
+					$error = $this->emptyPlaintextValues($comment);
+				}
 				break;
 		}
 
 		return $error ? $error : true;
 	}
 
-	protected function encryptComment($action, stdClass $comment)
+	protected function encryptComment(stdClass $comment)
 	{
 		// Here's the encryption itself
 		$encrypted = $this->getEncoder()->encrypt(
@@ -273,12 +277,6 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 			$this->getPublicKeyShortHash(),
 			true
 		);
-
-		// Special clause for full encryption
-		if ($action == self::ACTION_FULL_ENCRYPT)
-		{
-			// @todo
-		}
 
 		return null;
 	}
@@ -344,7 +342,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 			$error = "Comment #{$id} is not encrypted correctly, or encrypted with a different key";
 		}
 
-		return $error ? $error : true;
+		return $error;
 	}
 
 	protected function getLastCheckedCommentId()
@@ -357,6 +355,26 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		}
 
 		return get_option(self::OPTION_CHECKED_MAX, 0);
+	}
+
+	/**
+	 * If the check was successful, and we're full-encrypting, remove the email/IP
+	 * 
+	 * Tried wp_update_comment(), but that doesn't seem to work on the IP field
+	 * 
+	 * @param stdClass $comment
+	 */
+	protected function emptyPlaintextValues(stdClass $comment)
+	{
+		$wpdb = $this->getGlobalDatabase();
+		$rowsAffected = $wpdb->update(
+			$wpdb->comments,
+			array('comment_author_email' => '', 'comment_author_IP' => '',),
+			array('comment_ID' => $comment->comment_ID,)
+		);
+		$ok = $rowsAffected !== false;
+
+		return $ok ? null : "Failed to re-save comment #{$comment->comment_ID}";
 	}
 
 	/**
@@ -396,9 +414,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 */
 	protected function postLoopCheck(array $comments, $result)
 	{
-		/* @var $wpdb wpdb */
-		global $wpdb;
-
+		$wpdb = $this->getGlobalDatabase();
 		$html = '';
 
 		// If everything went ok, record our progress with this block
@@ -449,5 +465,18 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		}
 
 		return $html;
+	}
+
+	/**
+	 * Hides the global variable access from other methods
+	 * 
+	 * @global wpdb $wpdb
+	 * @return wpdb
+	 */
+	protected function getGlobalDatabase()
+	{
+		global $wpdb;
+
+		return $wpdb;
 	}
 }
