@@ -252,6 +252,14 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		return $error ? $error : true;
 	}
 
+	/**
+	 * Encrypts the test comment, leaving the plaintext fields as they are
+	 * 
+	 * @todo Add in db format identifier, something like "<version><newline><encrypted-data>"
+	 * 
+	 * @param stdClass $comment
+	 * @return mixed False if everything was ok, string error if not
+	 */
 	protected function encryptComment(stdClass $comment)
 	{
 		// Here's the encryption itself
