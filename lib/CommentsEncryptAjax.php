@@ -247,6 +247,8 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 					$error = $this->emptyPlaintextValues($comment);
 				}
 				break;
+			case self::ACTION_FULL_DECRYPT:
+				$error = $this->decryptComment($comment);
 		}
 
 		return $error ? $error : true;
@@ -295,6 +297,14 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	protected function formatStringsForEncryption(stdClass $comment)
 	{
 		return $comment->comment_author_email . "\n" . $comment->comment_author_IP;
+	}
+
+	protected function splitStringForDecryption($decryptedString)
+	{
+		// We don't want to trim this first, since an email entry could be a null string
+		$strings = explode("\n", $decryptedString);
+
+		return array($strings[0], $strings[1]);
 	}
 
 	/**
@@ -365,15 +375,53 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 */
 	protected function emptyPlaintextValues(stdClass $comment)
 	{
+		$ok = $this->updateComment($comment, '', '');
+
+		return $ok ? null : "Failed to re-save comment #{$comment->comment_ID}";
+	}
+
+	/**
+	 * Updates the email and IP fields of a comment in the database
+	 * 
+	 * @param stdClass $comment
+	 * @return boolean True if successful
+	 */
+	protected function updateComment(stdClass $comment, $email, $ip)
+	{
 		$wpdb = $this->getGlobalDatabase();
 		$rowsAffected = $wpdb->update(
 			$wpdb->comments,
-			array('comment_author_email' => '', 'comment_author_IP' => '',),
+			array(
+				'comment_author_email' => $email,
+				'comment_author_IP' => $ip,
+			),
 			array('comment_ID' => $comment->comment_ID,)
 		);
-		$ok = $rowsAffected !== false;
 
-		return $ok ? null : "Failed to re-save comment #{$comment->comment_ID}";
+		return $rowsAffected !== false;
+	}
+
+	/**
+	 * Decrypts a comment fully
+	 * 
+	 * @todo Implement separate encryption class that splits email/IP in a central place
+	 * 
+	 * @param stdClass $comment
+	 * @return mixed Bool false if everything was okay, otherwise a string error message
+	 */
+	protected function decryptComment(stdClass $comment)
+	{
+		$encrypted = get_comment_meta($comment->comment_ID, self::META_ENCRYPTED, $single = true);
+		$decrypted = $this->getEncoder()->decrypt($encrypted);
+		if ($decrypted)
+		{
+			list($email, $ip) = $this->splitStringForDecryption($decrypted);
+			$ok = $this->updateComment($comment, $email, $ip);
+			// @todo Still need to remove comment_meta fields
+			// @todo Run the validation checker on it before zapping the meta fields
+		}
+
+		return $ok ? false : "Could not decrypt comment #{$comment->comment_ID}";
 	}
 
 	/**
