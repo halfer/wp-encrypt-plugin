@@ -67,5 +67,6 @@
 		<li>Speed tests to see if phpsec lib is faster/slower than openssl extension</li>
 		<li><s>Offer template system as generic solution for WP plugins</s></li>
 		<li>Use option system to cache COUNT(*) calls, as these are slow</li>
+		<li>Simplify system by merging test/full encryption?</li>
 	</ol>
 </div>
