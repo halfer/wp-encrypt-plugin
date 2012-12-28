@@ -65,15 +65,15 @@ class CommentsEncryptMain extends CommentsEncryptBase
 	 * 
 	 * @todo Implement separate encryption class that splits email/IP in a central place
 	 * 
-	 * @param EncDec $EncDec
+	 * @param AssymetricEncryptor $encoder
 	 * @param stdClass $comment
 	 */
-	protected function decryptComment(EncDec $EncDec, stdClass $comment)
+	protected function decryptComment(AssymetricEncryptor $encoder, stdClass $comment)
 	{
 		if (!isset($comment->decrypted))
 		{
 			$encrypted = get_comment_meta( $comment->comment_ID, self::META_ENCRYPTED, true );
-			$plain = $EncDec->decrypt($encrypted);
+			$plain = $encoder->decrypt($encrypted);
 			$comment->decrypted = new stdClass();
 			list(
 				$comment->decrypted->comment_author_email,
@@ -222,11 +222,11 @@ class CommentsEncryptMain extends CommentsEncryptBase
 		if ($screen->base == 'edit-comments')
 		{
 			// In the comments screen, we need to prepare for decryption
-			require_once $this->root . '/lib/EncDec.php';
+			require_once $this->root . '/lib/AssymetricEncryptor.php';
 
 			if ($privKey = $this->getPrivateKey())
 			{
-				$this->encoder = new EncDec();
+				$this->encoder = new AssymetricEncryptor();
 				// @todo Do we need to handle an ok = false here?
 				$ok = $this->encoder->setKeysFromPrivateKey($privKey);
 			}
@@ -363,20 +363,20 @@ class CommentsEncryptMain extends CommentsEncryptBase
 	protected function generateNewKeys()
 	{
 		// Include the library we need
-		require_once $this->root . '/lib/EncDec.php';
+		require_once $this->root . '/lib/AssymetricEncryptor.php';
 
 		// Try to get the new privkey from a cookie, in case the user has already generated but not ticked
 		// the agreement box
 		$newPrivKey = $_COOKIE[ self::COOKIE_NEW_PRIV_KEY ];
 
-		$EncDec = new EncDec();
+		$encoder = new AssymetricEncryptor();
 
 		// Firstly, just store the private key in a cookie, so we can later ask the user if they
 		// have saved the key to their computer
 		if ( !$newPrivKey && $_GET )
 		{
-			$EncDec->createNewKeys();
-			$newPrivKey = $EncDec->getPrivateKey();
+			$encoder->createNewKeys();
+			$newPrivKey = $encoder->getPrivateKey();
 			setcookie(
 				self::COOKIE_NEW_PRIV_KEY,
 				$newPrivKey,
@@ -398,10 +398,10 @@ class CommentsEncryptMain extends CommentsEncryptBase
 			$error = false;
 			if ($this->getInput('save_confirm'))
 			{
-				$ok = $EncDec->setKeysFromPrivateKey($newPrivKey);
+				$ok = $encoder->setKeysFromPrivateKey($newPrivKey);
 				if ($ok)
 				{
-					update_option(self::OPTION_PUB_KEY, $EncDec->getPublicKey());
+					update_option(self::OPTION_PUB_KEY, $encoder->getPublicKey());
 					// Set an old cookie to trigger browser delete mechanism, rather than unsetting it
 					unset($_COOKIE[ self::COOKIE_NEW_PRIV_KEY ]);
 					$this->setPrivateKeyCookie($newPrivKey);
@@ -437,21 +437,21 @@ class CommentsEncryptMain extends CommentsEncryptBase
 		if ($this->getInput('test_key'))
 		{
 			// Include the library we need
-			require_once $this->root . '/lib/EncDec.php';
+			require_once $this->root . '/lib/AssymetricEncryptor.php';
 
 			$privKey = $this->getInput('private_key');
 
-			$EncDec = new EncDec();
-			$ok = $EncDec->setKeysFromPrivateKey($privKey);
+			$encoder = new AssymetricEncryptor();
+			$ok = $encoder->setKeysFromPrivateKey($privKey);
 
 			// Ensure pub key from user input is the same as the stored version
 			$error = false;
 			if ($ok)
 			{
-				$pubKey = $EncDec->getPublicKey();
+				$pubKey = $encoder->getPublicKey();
 				if ($pubKey == get_option(self::OPTION_PUB_KEY))
 				{
-					update_option(self::OPTION_PUB_KEY_HASH, $EncDec->getPublicKeyLongHash());
+					update_option(self::OPTION_PUB_KEY_HASH, $encoder->getPublicKeyLongHash());
 				}
 				else
 				{
@@ -491,19 +491,19 @@ class CommentsEncryptMain extends CommentsEncryptBase
 		if ($_POST)
 		{
 			// Include the library we need
-			require_once $this->root . '/lib/EncDec.php';
+			require_once $this->root . '/lib/AssymetricEncryptor.php';
 
 			$privKey = $this->getInput('private_key');
 			
 			$pageKey = self::PAGE_OPTIONS;
 
-			$EncDec = new EncDec();
-			$ok = $EncDec->setKeysFromPrivateKey($privKey);
+			$encoder = new AssymetricEncryptor();
+			$ok = $encoder->setKeysFromPrivateKey($privKey);
 			if ($ok)
 			{
-				$pubKey = $EncDec->getPublicKey();
+				$pubKey = $encoder->getPublicKey();
 				update_option(self::OPTION_PUB_KEY, $pubKey);
-				update_option(self::OPTION_PUB_KEY_HASH, $EncDec->getPublicKeyLongHash());
+				update_option(self::OPTION_PUB_KEY_HASH, $encoder->getPublicKeyLongHash());
 
 				wp_redirect(
 					"options-general.php?page={$pageKey}&imported_ok=1",

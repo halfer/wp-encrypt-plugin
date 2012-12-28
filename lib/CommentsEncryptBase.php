@@ -116,7 +116,7 @@ class CommentsEncryptBase extends TemplateSystem
 	 * 
 	 * Useful to the IDE; autocomplete doesn't always work with the class attribute directly
 	 * 
-	 * @return EncDec
+	 * @return AssymetricEncryptor
 	 */
 	protected function getEncoder()
 	{

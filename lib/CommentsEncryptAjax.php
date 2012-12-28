@@ -7,7 +7,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		$html = '';
 
 		// Set up encryption class
-		$this->encoder = new EncDec();
+		$this->encoder = new AssymetricEncryptor();
 
 		// Get the action from the menu, only do something if this is a valid choice
 		list($action, $errorMessage) = $this->getAction();

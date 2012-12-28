@@ -1,6 +1,6 @@
 <?php
 
-class EncDec {
+class AssymetricEncryptor {
 
 	protected $useBase64;
 	protected $pubKey;
