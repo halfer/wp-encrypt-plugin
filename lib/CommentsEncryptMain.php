@@ -60,13 +60,20 @@ class CommentsEncryptMain extends CommentsEncryptBase
 		return $ip;
 	}
 
+	/**
+	 * Decrypts protected fields in the admin interface
+	 * 
+	 * @todo Implement separate encryption class that splits email/IP in a central place
+	 * 
+	 * @param EncDec $EncDec
+	 * @param stdClass $comment
+	 */
 	protected function decryptComment(EncDec $EncDec, stdClass $comment)
 	{
 		if (!isset($comment->decrypted))
 		{
 			$encrypted = get_comment_meta( $comment->comment_ID, self::META_ENCRYPTED, true );
-			$unpacked = base64_decode($encrypted);
-			$plain = $EncDec->decrypt($unpacked);
+			$plain = $EncDec->decrypt($encrypted);
 			$comment->decrypted = new stdClass();
 			list(
 				$comment->decrypted->comment_author_email,
