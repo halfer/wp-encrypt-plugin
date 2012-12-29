@@ -21,7 +21,6 @@ class CommentsEncryptBase extends TemplateSystem
 	// Stores values in comment metadata
 	const META_ENCRYPTED = 'commentenc_encrypt';
 	const META_PUB_KEY_HASH = 'commentenc_pub_key_hash';
-	const META_VERSION = 'commentenc_version';
 	const META_AVATAR_HASH = 'commentenc_avatar';
 
 	const KEY_BAD_KEY = 'bad_priv_key';

@@ -453,14 +453,27 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 */
 	protected function decryptComment(stdClass $comment)
 	{
-		$encrypted = get_comment_meta($comment->comment_ID, self::META_ENCRYPTED, $single = true);
+		$encrypted = get_comment_meta($comment->comment_ID, self::META_ENCRYPTED, $_single = true);
 		$decrypted = $this->getEncoder()->decrypt($encrypted);
 		if ($decrypted)
 		{
 			list($email, $ip) = $this->splitStringForDecryption($decrypted);
 			$ok = $this->updateComment($comment, $email, $ip);
-			// @todo Still need to remove comment_meta fields
-			// @todo Run the validation checker on it before zapping the meta fields
+			
+			// Reload the comment object from the db and check it
+			$comment = get_comment($comment->comment_ID);
+			$error = $this->checkComment($comment);
+			if ($error)
+			{
+				$ok = false;
+			}
+			else
+			{
+				// Delete the metadata we recognise
+				delete_comment_meta($comment->comment_ID, self::META_ENCRYPTED);
+				delete_comment_meta($comment->comment_ID, self::META_AVATAR_HASH);
+				delete_comment_meta($comment->comment_ID, self::META_PUB_KEY_HASH);
+			}
 		}
 
 		return $ok ? false : "Could not decrypt comment #{$comment->comment_ID}";
