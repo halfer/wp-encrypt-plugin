@@ -3,8 +3,9 @@
 	<ol>
 		<li>Gravatars</li>
 		<ol>
-			<li>Add a Gravatar hash automatically when encrypting if the hash option is ticked</li>
+			<li>Remove a Gravatar hash automatically when decrypting</li>
 			<li>Display has-hash property in comment browser (use Gravatar icon)</li>
+			<li>Add in bar for Gravatar population</li>
 		</ol>
 		<li>Add JS close button to validation progress bar</li>
 		<li>Make a start on the search page</li>
@@ -64,12 +65,14 @@
 			<li><s>Have a few pub key hash chars per comment to achieve this</s></li>
 			<li><s>Are there db calls to do counts of comments with certain metadata fields?</s></li>
 		</ol>
-		<li><s>Can we still use Gravatars even though we intend to empty the email field? Look at the
-			"get_avatar" filter</s></li>
+		<li><s>Gravatars</s></li>
 		<ol>
+			<li><s>Can we still use Gravatars even though we intend to empty the email field? Look at the
+				"get_avatar" filter</s></li>
 			<li><s>Background task to add Gravatar hashes to all comments</s></li>
 			<li><s>Background task to remove Gravatar hashes to all comments</s></li>
 			<li><s>Add hash count to stats box</s></li>
+			<li><s>Add a Gravatar hash automatically when encrypting if the hash option is ticked</s></li>
 		</ol>
 		<li><s>Show encryption progress</s></li>
 		<ol>
