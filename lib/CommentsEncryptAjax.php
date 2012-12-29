@@ -251,12 +251,10 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				$error = $this->encryptComment($comment);
 				break;
 			case self::ACTION_FULL_ENCRYPT:
+				$error = $this->fullEncryptComment($comment);
+				break;
 			case self::ACTION_CHECK:
 				$error = $this->checkComment($comment);
-				if ($action == self::ACTION_FULL_ENCRYPT && !$error)
-				{
-					$error = $this->emptyPlaintextValues($comment);
-				}
 				break;
 			case self::ACTION_FULL_DECRYPT:
 				$error = $this->decryptComment($comment);
@@ -369,6 +367,35 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		return $error;
 	}
 
+	/**
+	 * Converts a test-encrypted comment to a fully encrypted comment
+	 * 
+	 * @param stdClass $comment
+	 * @return mixed False if everything was ok, string error if not
+	 */
+	protected function fullEncryptComment(stdClass $comment)
+	{
+		// First we check the comment is decryptable
+		$error = $this->checkComment($comment);
+
+		// If so, then we add a Gravatar hash if that option is selected
+		if (!$error)
+		{
+			if (get_option(self::OPTION_STORE_AVATAR_HASHES, false))
+			{
+				$error = $this->addHashToComment($comment);
+			}
+		}
+
+		// And if that also went well, zero the plaintext fields
+		if (!$error)
+		{
+			$error = $this->emptyPlaintextValues($comment);
+		}
+
+		return $error ? $error : false;
+	}
+
 	protected function getLastCheckedCommentId()
 	{
 		// If this is the first op, clear progress
@@ -443,6 +470,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 * Adds a gravatar hash to a fully encrypted comment
 	 * 
 	 * @param stdClass $comment
+	 * @return mixed Bool false if everything was okay, otherwise a string error message
 	 */
 	protected function addHashToComment(stdClass $comment)
 	{
