@@ -16,10 +16,18 @@ class CommentsEncryptMain extends CommentsEncryptBase
 	{
 		$privKeySet = (bool) $this->getPrivateKey();
 
+		$locked = $privKeySet ? 'unlocked' : 'locked';
+		$icon = "<span class=\"$locked ab-icon\"></span>";
+		$title =
+			'<span class="text">' .
+				($privKeySet? 'Private key set' : 'Private key unknown') .
+			'</span>'
+		;
+
 		$WpAdminBar->add_menu(
 			array(
-				'id' => 'encdemo_key_status',
-				'title' => $privKeySet? 'Private key set' : 'Private key unknown',
+				'id' => 'encdemo-key-status',
+				'title' => $icon . $title,
 				'href' => 'edit-comments.php?page=' . self::PAGE_LOGIN,
 			)
 		);
@@ -149,6 +157,11 @@ class CommentsEncryptMain extends CommentsEncryptBase
 		return $actions;
 	}
 
+	/**
+	 * Sets up various submenus for the admin screens
+	 * 
+	 * @todo Move this to CommentsEncryptInit 
+	 */
 	public function screensHandler()
 	{
 		// This does some variable initialisation for the admin screen decryption. (I'm using admin_head here

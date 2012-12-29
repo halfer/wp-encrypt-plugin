@@ -82,3 +82,11 @@
 #encrypt-demo-options .clear {
 	clear: both;
 }
+
+/* The actual images are defined using dynamic CSS in the settings page */
+#wpadminbar #wp-admin-bar-encdemo-key-status {
+	background-repeat: no-repeat;
+}
+#wpadminbar #wp-admin-bar-encdemo-key-status .text {
+	margin-left: 8px;
+} 
