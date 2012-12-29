@@ -169,6 +169,9 @@ class CommentsEncryptMain extends CommentsEncryptBase
 		// too early). 
 		add_action('admin_head', array($this, 'commentsActionHandler'));
 
+		// Add callback to include admin bar CSS (required over all admin screens)
+		add_action('admin_head', array($this, 'adminCssHandler'));
+
 		// Add settings menu item
 		$hookSuffix = add_options_page(
 			'Comment Encryption Options',
@@ -244,6 +247,11 @@ class CommentsEncryptMain extends CommentsEncryptBase
 				$ok = $this->encoder->setKeysFromPrivateKey($privKey);
 			}
 		}
+	}
+
+	public function adminCssHandler()
+	{
+		$this->renderPartial('dynamic-css');
 	}
 
 	/**

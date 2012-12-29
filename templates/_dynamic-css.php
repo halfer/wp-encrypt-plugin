@@ -14,4 +14,12 @@ $uri = plugins_url() . '/' . CommentsEncryptBase::PATH_PLUGIN_NAME;
 #wpadminbar #wp-admin-bar-encdemo-key-status .unlocked {
 	background-image: url('<?php echo $uri ?>/unlocked-bar.png');
 }
+
+#wpadminbar #wp-admin-bar-encdemo-key-status {
+	background-repeat: no-repeat;
+}
+
+#wpadminbar #wp-admin-bar-encdemo-key-status .text {
+	margin-left: 7px;
+} 
 </style>
