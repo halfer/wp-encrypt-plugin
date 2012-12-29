@@ -5,6 +5,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	public function preExecute()
 	{
 		$html = '';
+		$count = 0;
 
 		// Set up encryption class
 		$this->encoder = new AssymetricEncryptor();
@@ -39,13 +40,17 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				}
 
 				// Call cleanup to finish off this action
-				$html = $this->doPostLoop($action, $comments, $result);
+				$resultBlock = $this->doPostLoop($action, $comments, $result);
+				$html = $resultBlock['html'];
+
+				// Some post actions will return a count value
+				$count = array_key_exists('count', $resultBlock) ? $resultBlock['count'] : count($comments);
 			}
 		}
 
 		echo json_encode(
 			array(
-				'count' => count($comments),
+				'count' => $count,
 				'block_id' => ( $action == self::ACTION_CHECK ) ? 'processing-status-block' : 'status-block',
 				'html_block' => $html,
 				'peak_mem_usage' => memory_get_peak_usage(),
@@ -221,6 +226,10 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				break;
 			case self::ACTION_ADD_HASHES:
 				$sql = $this->getSqlForEncryptedUnhashedComments($wpdb, $limit);
+				break;
+			case self::ACTION_REMOVE_HASHES:
+				// Deliberately do nothing
+				break;
 		}
 
 		$rows = null;
@@ -457,11 +466,11 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	 * @param integer $action
 	 * @param array $comments
 	 * @param mixed $result True if okay, string error message if not
-	 * @return string
+	 * @return array
 	 */
 	protected function doPostLoop($action, array $comments, $result)
 	{
-		$html = '';
+		$return = array();
 
 		switch ($action)
 		{
@@ -470,15 +479,17 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 			case self::ACTION_TEST_DECRYPT:
 			case self::ACTION_FULL_DECRYPT:
 			case self::ACTION_ADD_HASHES:
+				$return['html'] = $this->getRenderedComponent('EncryptDemoStatus', 'status');
+				break;
 			case self::ACTION_REMOVE_HASHES:
-				$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
+				$return = $this->postLoopRemoveHashes();
 				break;
 			case self::ACTION_CHECK:
-				$html = $this->postLoopCheck($comments, $result);
+				$return['html'] = $this->postLoopCheck($comments, $result);
 				break;
 		}
 
-		return $html;
+		return $return;
 	}
 
 	/**
@@ -541,6 +552,25 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		}
 
 		return $html;
+	}
+
+	/**
+	 * Removes all metadata comment hashes from the db
+	 * 
+	 * @todo Return a 'stop_immediately' flag so the AJAX op doesn't perform another try
+	 * 
+	 * @return string
+	 */
+	protected function postLoopRemoveHashes()
+	{
+		// Delete all metadata hash entries
+		$wpdb = $this->getGlobalDatabase();
+		$rowsAffected = $wpdb->delete($wpdb->commentmeta, array('meta_key' => self::META_AVATAR_HASH));
+
+		// Grab a new status block
+		$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
+
+		return array('html' => $html, 'count' => $rowsAffected);
 	}
 
 	/**
