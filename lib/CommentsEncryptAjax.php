@@ -219,6 +219,8 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				// Find fully-encrypted comments
 				$sql = $this->getSqlForEncryptedCommentsList($wpdb, true, $limit);
 				break;
+			case self::ACTION_ADD_HASHES:
+				$sql = $this->getSqlForEncryptedUnhashedComments($wpdb, $limit);
 		}
 
 		$rows = null;
@@ -249,6 +251,10 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 				break;
 			case self::ACTION_FULL_DECRYPT:
 				$error = $this->decryptComment($comment);
+				break;
+			case self::ACTION_ADD_HASHES;
+				$error = $this->addHashToComment($comment);
+				break;
 		}
 
 		return $error ? $error : true;
@@ -425,6 +431,27 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 	}
 
 	/**
+	 * Adds a gravatar hash to a fully encrypted comment
+	 * 
+	 * @param stdClass $comment
+	 */
+	protected function addHashToComment(stdClass $comment)
+	{
+		$ok = false;
+
+		$encrypted = get_comment_meta($comment->comment_ID, self::META_ENCRYPTED, $single = true);
+		$decrypted = $this->getEncoder()->decrypt($encrypted);
+		if ($decrypted)
+		{
+			list($email, $ip) = $this->splitStringForDecryption($decrypted);
+			$hash = md5($email);
+			$ok = add_comment_meta($comment->comment_ID, self::META_AVATAR_HASH, $hash, $_unique = true);
+		}
+
+		return $ok ? false : "Failed to hash the email field for comment #{$comment->comment_ID}";
+	}
+
+	/**
 	 * Finish processing after comments loop
 	 * 
 	 * @param integer $action
@@ -442,6 +469,8 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 			case self::ACTION_FULL_ENCRYPT:
 			case self::ACTION_TEST_DECRYPT:
 			case self::ACTION_FULL_DECRYPT:
+			case self::ACTION_ADD_HASHES:
+			case self::ACTION_REMOVE_HASHES:
 				$html = $this->getRenderedComponent('EncryptDemoStatus', 'status');
 				break;
 			case self::ACTION_CHECK:
@@ -465,7 +494,7 @@ class CommentsEncryptAjax extends CommentsEncryptBase
 		$html = '';
 
 		// If everything went ok, record our progress with this block
-		if ($result == true)
+		if ($result === true)
 		{
 			if ($lastComment = end($comments))
 			{

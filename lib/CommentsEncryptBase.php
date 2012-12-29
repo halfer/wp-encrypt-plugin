@@ -56,12 +56,32 @@ class CommentsEncryptBase extends TemplateSystem
 		return $this->getSqlForEncryptedCommentsGeneral($wpdb, 'COUNT(*)', $isFullyEncrypted);
 	}
 
+	/**
+	 * Gets SQL for test/fully encrypted comments
+	 * 
+	 * @todo Swap '*' for 'comments.*' to improve memory consumption?
+	 * 
+	 * @param wpdb $wpdb
+	 * @param boolean $isFullyEncrypted
+	 * @param integer $limit
+	 * @return string
+	 */
 	public function getSqlForEncryptedCommentsList(wpdb $wpdb, $isFullyEncrypted, $limit)
 	{
 		return $this->getSqlForEncryptedCommentsGeneral($wpdb, '*', $isFullyEncrypted) . " LIMIT $limit";
 	}
 
-	public function getSqlForTestEncryptedComments( $wpdb, $limit, $maxCommentId = null)
+	/**
+	 * Gets SQL for test encrypted comments
+	 * 
+	 * @todo Swap '*' for 'comments.*' to improve memory consumption?
+	 * 
+	 * @param wpdb $wpdb
+	 * @param integer $limit
+	 * @param integer $maxCommentId
+	 * @return string
+	 */
+	public function getSqlForTestEncryptedComments(wpdb $wpdb, $limit, $maxCommentId = null)
 	{
 		$sql = $this->getSqlForEncryptedCommentsGeneral(
 			$wpdb,
@@ -73,6 +93,41 @@ class CommentsEncryptBase extends TemplateSystem
 		return "$sql LIMIT $limit";
 	}
 
+	/**
+	 * Gets SQL for fully encrypted comments that have not yet been hashed
+	 * 
+	 * @param wpdb $wpdb
+	 * @param integer $limit
+	 */
+	public function getSqlForEncryptedUnhashedComments(wpdb $wpdb, $limit)
+	{
+		$sql = $this->getSqlForEncryptedCommentsGeneral(
+			$wpdb,
+			'comments.*',
+			true,
+			"AND NOT EXISTS (
+				SELECT
+					1
+				FROM
+					$wpdb->commentmeta meta2
+				WHERE
+					meta2.comment_id = comments.comment_ID
+					AND meta2.meta_key = '" . self::META_AVATAR_HASH . "'
+			)"
+		);		
+
+		return "$sql LIMIT $limit";
+	}
+
+	/**
+	 * Generic SQL generating method
+	 * 
+	 * @param wpdb $wpdb
+	 * @param string $columns
+	 * @param boolean $isFullyEncrypted
+	 * @param string $where
+	 * @return string
+	 */
 	protected function getSqlForEncryptedCommentsGeneral(wpdb $wpdb, $columns, $isFullyEncrypted, $where = '')
 	{
 		$notSql = $isFullyEncrypted ? '' : 'NOT';

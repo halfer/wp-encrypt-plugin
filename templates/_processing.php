@@ -16,8 +16,8 @@
 			<option value="<?php echo CommentsEncryptBase::ACTION_CHECK ?>">Validate test-encrypted comments</option>
 		</optgroup>
 		<optgroup label="Gravatar hash actions">
-			<option value="<?php echo CommentsEncryptBase::ACTION_ADD_HASHES ?>">Add hashes</option>
-			<option value="<?php echo CommentsEncryptBase::ACTION_REMOVE_HASHES ?>">Remove hashes</option>
+			<option value="<?php echo CommentsEncryptBase::ACTION_ADD_HASHES ?>">Add missing hashes to encrypted comments</option>
+			<option value="<?php echo CommentsEncryptBase::ACTION_REMOVE_HASHES ?>">Remove hashes from comments</option>
 		</optgroup>
 	</select>
 
