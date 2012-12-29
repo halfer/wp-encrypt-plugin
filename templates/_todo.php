@@ -16,11 +16,6 @@
 			<li>Add warning in comments browser where the current priv key is wrong</li>
 			<li>Validate private key against pub key on record when logging on</li>
 		</ol>
-		<li>Admin banner</li>
-		<ol>
-			<li>Use open/closed padlock icon</li>
-			<li>Child link in admin bar to clear decryption cookie manually</li>
-		</ol>
 		<li>Capture logout event so we can clear all our custom cookies</li>
 		<li>Try deleting private key cookie whilst a background AJAX op is running; ensure it
 			stops and reports error gracefully</li>
@@ -45,6 +40,7 @@
 		<li>Use option system to cache COUNT(*) calls, as these are slow</li>
 		<li>Simplify system by merging test/full encryption?</li>
 		<li>Add an ETA to encryption progress</li>
+		<li>Child link in admin bar to clear decryption cookie manually?</li>
 	</ol>
 </div>
 
@@ -84,5 +80,6 @@
 		<li><s>Admin banner to say when private cookie is detected</s></li>
 		<li><s>Private key login box, off search menu</s></li>
 		<li><s>Offer template system as generic solution for WP plugins</s></li>
+		<li><s>Render open/closed padlock icon in admin bar</s></li>
 	</ol>
 </div>
