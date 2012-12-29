@@ -20,8 +20,9 @@
 		<li><s>Can we still use Gravatars even though we intend to empty the email field? Look at the
 			"get_avatar" filter</s></li>
 		<ol>
-			<li>Background task to add Gravatar hashes to all comments</li>
-			<li>Background task to remove Gravatar hashes to all comments</li>
+			<li><s>Background task to add Gravatar hashes to all comments</s></li>
+			<li><s>Background task to remove Gravatar hashes to all comments</s></li>
+			<li>Add a Gravatar hash automatically when encrypting if the hash option is ticked</li>
 			<li>Display has-hash property in comment browser, use Gravatar icon</li>
 			<li><s>Add hash count to stats box</s></li>
 		</ol>
