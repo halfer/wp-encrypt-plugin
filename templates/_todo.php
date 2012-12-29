@@ -3,14 +3,14 @@
 	<ol>
 		<li>Gravatars</li>
 		<ol>
-			<li>Remove a Gravatar hash automatically when decrypting</li>
 			<li>Display has-hash property in comment browser (use Gravatar icon)</li>
-			<li>Add in bar for Gravatar population</li>
+			<li>Add in percentage bar for Gravatar population</li>
 		</ol>
 		<li>Add JS close button to validation progress bar</li>
 		<li>Make a start on the search page</li>
 		<li>Private key handling</li>
 		<ol>
+			<li>Move per-comment pub key hash into comment string?</li>
 			<li>When importing a key, display warning if the public key short hash is not found in
 				existing comment meta data</li>
 			<li>Add warning in comments browser where the current priv key is wrong</li>
@@ -73,6 +73,7 @@
 			<li><s>Background task to remove Gravatar hashes to all comments</s></li>
 			<li><s>Add hash count to stats box</s></li>
 			<li><s>Add a Gravatar hash automatically when encrypting if the hash option is ticked</s></li>
+			<li><s>Remove a Gravatar hash automatically when decrypting</s></li>
 		</ol>
 		<li><s>Show encryption progress</s></li>
 		<ol>
